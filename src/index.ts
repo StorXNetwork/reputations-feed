@@ -7,7 +7,7 @@ import cors from "cors"
 import "./helpers/logger"
 
 import commonRoutes from "./routes/common-routes"
-import storxRoutes from "./routes/storx-routes"
+// import storxRoutes from "./routes/storx-routes"
 
 import { errorHandler } from './middlewares/error-handler';
 
@@ -30,7 +30,7 @@ app.use(json());
 app.use(cors())
 
 app.use(commonRoutes)
-app.use(storxRoutes)
+// app.use(storxRoutes)
 
 app.all('*', async (req, res) => {
   throw new NotFoundError();
