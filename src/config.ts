@@ -13,8 +13,8 @@ export const REPUTATION_CONTRACT_ADDRESS = process.env.REPUTATION_CONTRACT_ADDRE
 export const STAKING_CONTRACT_ADDRESS = process.env.STAKING_CONTRACT_ADDRESS || "xdcca47a4a497a2547407aa250c40d71d3454a82835"
 export const SRX_TOKEN = process.env.SRX_TOKEN || "xdcf45ab647946e9f0800bc1194a73a52cf109a4313"
 
-export const STORX_DB_URI = "mongodb://78.129.150.147:27017/__storj-bridge-development"
-export const FEED_DB_URI = "mongodb://localhost:27017/reputation-feed"
+export const STORX_DB_URI = ""
+export const FEED_DB_URI = ""
 
 
 export const FEED_INTERVAL = 60 * 60 * 1000 // in ms
