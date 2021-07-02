@@ -16,7 +16,7 @@ The app has been written in Typescript + Node.js
  - `npm i --g typescript`
  - `npm i`
  - `cp .env.example .env` & update the .env with appropriate values
- - update [config](./src/condif.ts) file with operator account, proper db connections  
+ - update [config](./src/config.ts) file with operator account, proper db connections  
  - `npm run build`  
  - running - 
     - production: `npm run start-pm2`
