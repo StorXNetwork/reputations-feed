@@ -43,7 +43,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
     for (let staker of stakers) {
       const { address, reputation } = staker;
-      const wallet = utils.fromXdcAddress(ACCOUNT.address).toLowerCase();
+      const wallet = utils.fromXdcAddress(FARMER_ADDRESS[address]).toLowerCase();
 
       if (!existingStaker.data.includes(wallet)) {
         console.log("sync: adding", address);
