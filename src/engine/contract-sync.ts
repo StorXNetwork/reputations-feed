@@ -12,15 +12,26 @@ import { ContractData } from "../models/contract-data";
 import { REPUTATION_CONTRACT_ADDRESS, STAKING_CONTRACT_ADDRESS, NETWORK, INITIAL_BLOCK } from '../config';
 
 
-import { ConnectionObject, ReconnectableEvent } from '../classes/ReconnectableEvent';
+import { ConnectionObject, ReconnectableEvent, ReconnectableXdc3 } from '../classes/ReconnectableEvent';
 import { ClaimAddressCron } from '../classes/ClaimAddressCron';
 
 const jober = new ClaimAddressCron({ "ws": NETWORK.ws })
 
+const XdcObject = new ReconnectableXdc3(NETWORK.ws);
+
+// setTimeout(() => {
+//   XdcObject.disconnect()
+// }, 10000)
+
+setInterval(async () => {
+  const status = await XdcObject.status;
+  global.logger.info("status-xdc3:engine::", status);
+}, 15000)
+
 
 async function sync() {
   try {
-    const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+    const xdc3 = XdcObject.get_xdc3
     const contract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS)
 
     let lastSyncBlock = 0;
@@ -95,7 +106,7 @@ const ContractDataMethod = ['token', 'iRepF', 'reputationThreshold', 'hostingCom
 
 async function updateContractData() {
   try {
-    const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc as string));
+    const xdc3 = XdcObject.get_xdc3
     const stakingContract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS)
     const reputationContract = new xdc3.eth.Contract(ReputationFeedABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS)
 

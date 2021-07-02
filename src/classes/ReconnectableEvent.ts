@@ -60,3 +60,48 @@ export class ReconnectableEvent {
     this.watch()
   }
 }
+
+export class ReconnectableXdc3 {
+  xdc3: Xdc3;
+  reconnInterval: any;
+  ws: string;
+  provider: WebsocketProvider;
+
+  constructor(ws: string) {
+    this.ws = ws
+    this.provider = new Xdc3.providers.WebsocketProvider(this.ws)
+    this.xdc3 = new Xdc3(this.provider);
+    this.reconnect()
+    this.reconn()
+  }
+
+
+  reconn() {
+    this.reconnInterval = setInterval(() => {
+      this.xdc3.eth.net.isListening().then(x => {
+        if (!x) this.reconnect()
+      }).catch(() => {
+        console.log("reconnectable-xdc3", "disconnected");
+        this.reconnect()
+      })
+    }, 5000)
+  }
+
+  get status(): Promise<boolean> {
+    return this.xdc3.eth.net.isListening()
+  }
+
+  get get_xdc3(): Xdc3 {
+    return this.xdc3
+  }
+
+  disconnect() {
+    this.provider.disconnect(0, "test")
+    console.log("disconnected reconnectable xdc3");
+  }
+
+  reconnect() {
+    this.provider = new Xdc3.providers.WebsocketProvider(this.ws)
+    this.xdc3 = new Xdc3(this.provider);
+  }
+}

@@ -4,6 +4,19 @@ import { TransactionReceipt } from "xdc3-core";
 
 import ABI from "../ABI/ReputationFeed.json"
 import { NETWORK, REPUTATION_CONTRACT_ADDRESS, ACCOUNT } from '../config';
+import { ReconnectableXdc3 } from '../classes/ReconnectableEvent';
+
+
+const XdcObject = new ReconnectableXdc3(NETWORK.ws);
+
+// setTimeout(() => {
+//   XdcObject.disconnect()
+// }, 10000)
+
+setInterval(async () => { 
+  const status = await XdcObject.status;
+  global.logger.info("status-xdc3:feed::", status);
+}, 15000)
 
 export const GeneralContractMethodView = (
   method: string,
@@ -11,7 +24,7 @@ export const GeneralContractMethodView = (
 ): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+      const xdc3 = XdcObject.get_xdc3;
       const contract = new xdc3.eth.Contract(
         ABI as AbiItem[],
         REPUTATION_CONTRACT_ADDRESS
@@ -33,7 +46,7 @@ export const GeneralContractMethod = (
     try {
       console.log("method, params", method, params);
 
-      const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+      const xdc3 = XdcObject.get_xdc3;
       const contract = new xdc3.eth.Contract(
         ABI as AbiItem[],
         REPUTATION_CONTRACT_ADDRESS
@@ -70,7 +83,7 @@ export const GeneralContractMethod = (
 export const GetAddressReputation = async (
   address: string
 ): Promise<number> => {
-  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  const xdc3 = XdcObject.get_xdc3;
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   return await contract.methods.getReputation(address).call();
 };
@@ -79,7 +92,7 @@ export const UpdateAddresReputation = async (
   address: string,
   reputation: number
 ): Promise<boolean> => {
-  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  const xdc3 = XdcObject.get_xdc3;
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   const data = contract.methods.setReputation(address, reputation).encodeABI();
   const tx: any = {
