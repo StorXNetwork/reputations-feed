@@ -25,7 +25,7 @@ export async function GetReputation(minRep: number = 0): Promise<Reputation[]> {
 
 export async function SyncStakers(minRep: number = 0): Promise<boolean> {
   try {
-    const stakers = (await Contact.find({ reputation: { $gte: minRep } })).filter(({ address }) => Object.keys(FARMER_ADDRESS).includes(address));
+    const stakers = (await Contact.find({ reputation: { $gt: minRep } })).filter(({ address }) => Object.keys(FARMER_ADDRESS).includes(address));
 
     const dbStakerAddress = stakers.map(({ address }) => utils.fromXdcAddress(FARMER_ADDRESS[address]).toLowerCase());
     const existingStaker = await GetAllStaker();
