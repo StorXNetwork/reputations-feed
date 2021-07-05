@@ -9,22 +9,21 @@ export const NETWORK = {
   wslive: "wss://ws.xinfin.network"
 }
 
-export const REPUTATION_CONTRACT_ADDRESS = process.env.REPUTATION_CONTRACT_ADDRESS || "xdc03eb22ba299f7902a6f65966649d62c05a61cb8f"
-export const STAKING_CONTRACT_ADDRESS = process.env.STAKING_CONTRACT_ADDRESS || "xdcca47a4a497a2547407aa250c40d71d3454a82835"
-export const SRX_TOKEN = process.env.SRX_TOKEN || "xdcf45ab647946e9f0800bc1194a73a52cf109a4313"
+export const REPUTATION_CONTRACT_ADDRESS = process.env.REPUTATION_CONTRACT_ADDRESS || "xdc5db64839828174d2d29b419e5581c16c67d62046"
+export const STAKING_CONTRACT_ADDRESS = process.env.STAKING_CONTRACT_ADDRESS || "xdc02fe7b136f5dbff8d00546cb5af45afd1e1d350c"
+export const SRX_TOKEN = process.env.SRX_TOKEN || "xdc5d5f074837f5d4618b3916ba74de1bf9662a3fed"
 
 export const STORX_DB_URI = ""
 export const FEED_DB_URI = ""
 
 
-export const FEED_INTERVAL = 60 * 60 * 1000 // in ms
+export const FEED_INTERVAL = 10 * 60 * 1000 // in ms
 
-export const INITIAL_BLOCK = 20000000
+export const INITIAL_BLOCK = 30000000
 
-export const INITIAL_STAKERS = ["0x0449cb09dec1c34f1067e00a83e5dd5af070ede8", "xdca13e001e70cf282fcaa645a22dd836c114ce6770", "xdc0ecdb47c40903f86e416b23ac0118028e6b08beb", "xdcf4435e1f5f7871b7fa349698dd407798759f051c"]
+export const INITIAL_STAKERS = []
 
 export const FARMER_ADDRESS: { [s: string]: string } = {
-  "62.171.133.138": "xdcf08c219c227d64d0aff8b5bef4da09f7214a574b",
-  "164.68.108.56": "xdceb440a9e84d81c76490ee031333aa25f7b7f03e5",
-  "62.171.160.82": "xdc19eb67dfbfb6c50d7ad33596014c32d5d833816c"
+  "173.212.195.20": "xdcc9acb65482ff9f3e05df8e769ef1cfafd41692d2", // Rushab
+  "87.117.239.115": "xdcd3bf3a49d663cc41ac12486ade7b3063561435d9", // Shubham
 }
