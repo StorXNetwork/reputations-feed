@@ -25,7 +25,7 @@ const XdcObject = new ReconnectableXdc3(NETWORK.ws);
 
 setInterval(async () => {
   const status = await XdcObject.status;
-  global.logger.info("status-xdc3:engine::", status);
+  global.logger.debug("status-xdc3:engine::", status);
 }, 15000)
 
 
