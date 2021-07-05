@@ -25,9 +25,9 @@ export async function GetReputation(minRep: number = 0): Promise<Reputation[]> {
 
 export async function SyncStakers(minRep: number = 0): Promise<boolean> {
   try {
-    const stakers = (await Contact.find({ reputation: { $gt: minRep } })).filter(({ address }) => Object.keys(FARMER_ADDRESS).includes(address));
+    const stakers = (await Contact.find({ reputation: { $gt: minRep } })).filter(({ _id }) => Object.keys(FARMER_ADDRESS).includes(_id));
 
-    const dbStakerAddress = stakers.map(({ address }) => utils.fromXdcAddress(FARMER_ADDRESS[address]).toLowerCase());
+    const dbStakerAddress = stakers.map(({ _id }) => utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase());
     const existingStaker = await GetAllStaker();
 
     console.log("dbStakerAddress", dbStakerAddress);
@@ -42,8 +42,8 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
     for (let staker of stakers) {
-      const { address, reputation } = staker;
-      const wallet = utils.fromXdcAddress(FARMER_ADDRESS[address]).toLowerCase();
+      const { address, reputation, _id } = staker;
+      const wallet = utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase();
 
       if (!existingStaker.data.includes(wallet)) {
         console.log("sync: adding", address);
