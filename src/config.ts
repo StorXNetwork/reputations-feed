@@ -30,5 +30,6 @@ export const FARMER_ADDRESS: { [s: string]: string } = {
   "f17c125494f7db76646fbc88dcfded881fc4fb0a": "xdc3a55a9ce3310cd9897c33d38fae04a3d7112f38b", // Omkar
   "3a780a916012cf44054007c9c850981731cc9d1a": "xdc53270ffaf978bef84a8cd69035d0d5954ec319da", // Anil
   "da887bd587a9bbe4547fdad1539a793362471b22": "xdcd3a38758f937d48c963425b31af76dc3da8ebc9b", // Hrishi
-  "884cca3ff98a903b190ce9e4344fc5e514a4c2f5": "xdcd3bf3a49d663cc41ac12486ade7b3063561435d9" // Shubham
+  "884cca3ff98a903b190ce9e4344fc5e514a4c2f5": "xdcd3bf3a49d663cc41ac12486ade7b3063561435d9", // Shubham
+  "114cf719b208812ec857f2a0f8cb0d067ee0735c": "xdc88252b64AE6028Ce5EeE997e85a66C8eF9b29145" // Suresh
 }
