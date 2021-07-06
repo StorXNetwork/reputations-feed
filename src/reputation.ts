@@ -46,11 +46,11 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
       const wallet = utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase();
 
       if (!existingStaker.data.includes(wallet)) {
-        console.log("sync: adding", address);
+        global.logger.info("sync: adding", address);
         const added = await AddStaker(wallet as string, reputation);
         if (added === null) return false;
       } else {
-        console.log("sync: updating", address);
+        global.logger.info("sync: updating", address);
         const updated = await UpdateAddresReputation(
           wallet as string,
           reputation
@@ -63,14 +63,14 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     for (let staker of INITIAL_STAKERS) {
       if (!existingStaker.data.includes(fromXdcAddress(staker).toLowerCase())) {
-        console.log("adding initial-staker", staker);
+        global.logger.info("adding initial-staker", staker);
         await AddStaker(staker as string, DEFAULT_REP);
       }
     }
 
     for (let staker of existingStaker.data) {
       if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
-        console.log("sync: removing", staker);
+        global.logger.info("sync: removing", staker);
         const removed = await RemoveStaker(staker);
         if (removed === null) return false;
       }
@@ -78,6 +78,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     return true;
   } catch (e) {
+    global.logger.error(e);
     console.trace(e);
     // logger.error(e)
     return false;

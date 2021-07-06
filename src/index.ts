@@ -48,7 +48,7 @@ setInterval(() => {
 
 const run = async () =>
   SyncStakers()
-    .then((status) => console.log("sync status", status))
+    .then((status) => global.logger.info("sync status", status))
     .catch(console.log);
 
 
