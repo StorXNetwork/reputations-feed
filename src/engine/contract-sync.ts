@@ -177,5 +177,7 @@ jober.syncJobs().then(() => {
   console.log(jober.getAllJobs());
 })
 
+export const UpdateContractData = updateContractData;
+
 
 

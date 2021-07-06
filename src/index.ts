@@ -40,6 +40,7 @@ app.listen(port, () => console.log("listening on port", port))
 
 app.use(errorHandler);
 import { SyncStakers } from "./reputation";
+import { UpdateContractData } from "./engine/contract-sync";
 
 
 setInterval(() => {
@@ -49,6 +50,8 @@ setInterval(() => {
 const run = async () =>
   SyncStakers()
     .then((status) => global.logger.info("sync status", status))
+    .then(UpdateContractData)
+    .then(() => console.log("updated contract config"))
     .catch(console.log);
 
 
