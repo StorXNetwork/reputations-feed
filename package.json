@@ -30,6 +30,7 @@
     "@types/lodash": "^4.14.170",
     "@types/mongoose": "^5.11.97",
     "@types/yargs": "^17.0.0",
+    "axios": "^0.21.1",
     "callsite": "^1.0.0",
     "concurrently": "^6.2.0",
     "cors": "^2.8.5",
