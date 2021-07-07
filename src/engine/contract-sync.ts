@@ -1,5 +1,5 @@
 import Xdc3 from "xdc3"
-import { AbiItem, toHex, hexToNumber, fromXdcAddress } from "xdc3-utils";
+import { AbiItem, toHex, hexToNumber, fromXdcAddress, toXdcAddress } from 'xdc3-utils';
 import { EventData } from "xdc3-eth-contract"
 
 import { Event } from "../models/events"
@@ -124,9 +124,13 @@ async function updateContractData() {
 
     const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => reputationContract.methods.reputations(fromXdcAddress(x)).call()))
     const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => stakingContract.methods.stakes(fromXdcAddress(x)).call()))
-    const stakeHolderData = await Promise.all(Object.keys(FARMER_ADDRESS).map(x => Contact.findOne({ _id: x })))
+    const ids = Object.keys(FARMER_ADDRESS);
+    const stakeHolderData: { [key: string]: Contact } = (await Promise.all(ids.map(x => Contact.findOne({ _id: x })))).reduce<{ [key: string]: Contact }>((acc, cur, i) => {
+      acc[fromXdcAddress(FARMER_ADDRESS[ids[i]]).toLowerCase()] = cur as Contact;
+      return acc
+    }, {});
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
-      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[i] } })
+      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[fromXdcAddress(staker).toLowerCase() as string] } })
       return acc
     }, {})
 
