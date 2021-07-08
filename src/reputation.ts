@@ -56,7 +56,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     const existingStaker = await GetAllStaker();
 
     console.log("dbStakerAddress", dbStakerAddress.length);
-    console.log("existingStaker", existingStaker.length);
+    console.log("existingStaker", existingStaker.data.length);
 
 
     if (existingStaker.status === false) return false;
