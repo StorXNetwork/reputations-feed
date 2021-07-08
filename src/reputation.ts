@@ -1,7 +1,4 @@
-import { Schema, model, connect } from "mongoose";
-import { ACCOUNT, INITIAL_STAKERS, FARMER_ADDRESS } from './config';
 import {
-  IsStaker,
   AddStaker,
   GetAllStaker,
   UpdateAddresReputation,
@@ -9,6 +6,7 @@ import {
 } from "./helpers/feed";
 import utils from "xdc3-utils";
 import { Contact } from "./models/contact";
+import { Mirror } from "./models/mirror"
 import { fromXdcAddress } from 'xdc3-utils';
 
 
@@ -25,25 +23,47 @@ export async function GetReputation(minRep: number = 0): Promise<Reputation[]> {
 
 export async function SyncStakers(minRep: number = 0): Promise<boolean> {
   try {
-    const stakers = (await Contact.find({ reputation: { $gt: minRep } })).filter(({ _id }) => Object.keys(FARMER_ADDRESS).includes(_id));
 
-    const dbStakerAddress = stakers.map(({ _id }) => utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase());
+
+    /**
+     * 
+     * Stakers Contact Method
+     * 
+     */
+    const stakers = (await Contact.find({ reputation: { $gt: minRep } }));
+
+    const dbStakerAddress = await Promise.all(stakers.map(({ _id }) => {
+      return new Promise(async (resolve, reject) => {
+        const all = await Mirror.findOne({})
+        Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean().then((data) => {
+          resolve(fromXdcAddress(data?.contract.payment_destination as string).toLowerCase())
+        }).catch(reject)
+      })
+    }))
+
+    /**
+     * 
+     * staker: _id:xdc address mapping
+     * 
+     */
+    const staker_address_map = stakers.reduce((acc: { [key: string]: string }, cur, i) => {
+      acc[cur._id as string] = dbStakerAddress[i] as string;
+      return acc;
+    }, {})
+
+
+    // stakers.map(({ _id }) => utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase());
     const existingStaker = await GetAllStaker();
 
-    console.log("dbStakerAddress", dbStakerAddress);
-    console.log("existingStaker", existingStaker);
-
-
-    INITIAL_STAKERS.forEach(staker => {
-      dbStakerAddress.push(utils.fromXdcAddress(staker).toLowerCase())
-    })
+    console.log("dbStakerAddress", dbStakerAddress.length);
+    console.log("existingStaker", existingStaker.length);
 
 
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
     for (let staker of stakers) {
       const { address, reputation, _id } = staker;
-      const wallet = utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase();
+      const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
 
       if (!existingStaker.data.includes(wallet)) {
         global.logger.info("sync: adding", address);
@@ -59,14 +79,14 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
       }
     }
 
-    const DEFAULT_REP = 200;
+    // const DEFAULT_REP = 200;
 
-    for (let staker of INITIAL_STAKERS) {
-      if (!existingStaker.data.includes(fromXdcAddress(staker).toLowerCase())) {
-        global.logger.info("adding initial-staker", staker);
-        await AddStaker(staker as string, DEFAULT_REP);
-      }
-    }
+    // for (let staker of INITIAL_STAKERS) {
+    //   if (!existingStaker.data.includes(fromXdcAddress(staker).toLowerCase())) {
+    //     global.logger.info("adding initial-staker", staker);
+    //     await AddStaker(staker as string, DEFAULT_REP);
+    //   }
+    // }
 
     for (let staker of existingStaker.data) {
       if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {

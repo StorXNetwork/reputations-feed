@@ -9,12 +9,13 @@ import StorxABI from "../ABI/Storx.json"
 
 import StakingABI from "../ABI/Staking.json"
 import { ContractData } from "../models/contract-data";
-import { REPUTATION_CONTRACT_ADDRESS, STAKING_CONTRACT_ADDRESS, NETWORK, INITIAL_BLOCK, FARMER_ADDRESS } from '../config';
+import { REPUTATION_CONTRACT_ADDRESS, STAKING_CONTRACT_ADDRESS, NETWORK, INITIAL_BLOCK } from '../config';
 
 
 import { ConnectionObject, ReconnectableEvent, ReconnectableXdc3 } from '../classes/ReconnectableEvent';
 import { ClaimAddressCron } from '../classes/ClaimAddressCron';
 import { Contact } from "../models/contact";
+import { Mirror } from "../models/mirror"
 
 const jober = new ClaimAddressCron({ "ws": NETWORK.ws })
 
@@ -124,13 +125,10 @@ async function updateContractData() {
 
     const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => reputationContract.methods.reputations(fromXdcAddress(x)).call()))
     const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => stakingContract.methods.stakes(fromXdcAddress(x)).call()))
-    const ids = Object.keys(FARMER_ADDRESS);
-    const stakeHolderData: { [key: string]: Contact } = (await Promise.all(ids.map(x => Contact.findOne({ _id: x })))).reduce<{ [key: string]: Contact }>((acc, cur, i) => {
-      acc[fromXdcAddress(FARMER_ADDRESS[ids[i]]).toLowerCase()] = cur as Contact;
-      return acc
-    }, {});
+
+    const stakeHolderData = await Promise.all(modelAttr.stakeHolders.map((x: string) => Mirror.findOne({ 'contract.payment_destination': toXdcAddress(x).toLowerCase() })))
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
-      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[fromXdcAddress(staker).toLowerCase() as string] } })
+      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[i] } })
       return acc
     }, {})
 
