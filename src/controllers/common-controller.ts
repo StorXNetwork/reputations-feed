@@ -1,10 +1,11 @@
 import express from 'express';
+import geoIp from "geoip-lite"
 
-
-import { ContractData } from "../models/contract-data"
+import { ContractData, StakeHolder } from '../models/contract-data';
 import { Event } from "../models/events"
 import { fromXdcAddress } from 'xdc3-utils';
 import { GetRates } from '../helpers/price';
+import { Contact } from '../models/contact';
 
 export const GetStakeHolder = (req: express.Request, res: express.Response): void => {
     res.json({ status: 200, data: [] })
@@ -24,3 +25,28 @@ export const GetAssetPrice = async (req: express.Request, res: express.Response)
     const rates = GetRates()
     res.json({ status: 200, data: rates })
 }
+
+export const GetNodeCoordinates = async (req: express.Request, res: express.Response): Promise<void> => {
+    const stakeHolders = (await ContractData.findOne({}))?.stakeHolders;
+    const stakeId = Object.keys(stakeHolders as StakeHolder[]).map<string>((x: string) => stakeHolders?.[x as any].data?.contact);
+    const contactToAddress = Object.keys(stakeHolders as StakeHolder[]).reduce((acc: any, cur: any): any => {
+        acc[stakeHolders?.[cur].data?.contact] = cur;
+        return acc;
+    }, {})
+
+    const addresses = (await Contact.find({ _id: { $in: stakeId } }).lean());
+
+    const ret_data = [];
+    for (let address of addresses) {
+        const geo_data = geoIp.lookup(address.ip.split(",")[0]);
+        ret_data.push({
+            ...address,
+            xdc_address: contactToAddress[address._id],
+            coordinates: geo_data?.ll,
+            geo_data,
+        })
+    }
+
+    res.json({ status: 200, data: ret_data })
+}
+

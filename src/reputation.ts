@@ -34,7 +34,6 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     const dbStakerAddress = await Promise.all(stakers.map(({ _id }) => {
       return new Promise(async (resolve, reject) => {
-        const all = await Mirror.findOne({})
         Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean().then((data) => {
           resolve(fromXdcAddress(data?.contract.payment_destination as string).toLowerCase())
         }).catch(reject)

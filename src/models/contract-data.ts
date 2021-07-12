@@ -5,6 +5,7 @@ export interface StakeHolder {
   address: string;
   stakedAmount:string;
   reputation: number;
+  data:any;
 }
 
 interface ContractDataAttr {
