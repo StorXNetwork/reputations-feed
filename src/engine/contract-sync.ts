@@ -16,6 +16,7 @@ import { ConnectionObject, ReconnectableEvent, ReconnectableXdc3 } from '../clas
 import { ClaimAddressCron } from '../classes/ClaimAddressCron';
 import { Contact } from "../models/contact";
 import { Mirror } from "../models/mirror"
+import { MailEvent } from "../helpers/mailer";
 
 const jober = new ClaimAddressCron({ "ws": NETWORK.ws })
 
@@ -74,11 +75,15 @@ async function watch() {
 
     if (lastEvent) lastSyncBlock = lastEvent.block
 
+    const fromBlock = MaxOf(lastSyncBlock, INITIAL_BLOCK)
+
+    global.logger.info(`watching from ${fromBlock}`)
+
     const opts: ConnectionObject = {
       ws: NETWORK.ws,
       abi: StakingABI as AbiItem[],
       address: STAKING_CONTRACT_ADDRESS,
-      fromBlock: MaxOf(lastSyncBlock, INITIAL_BLOCK)
+      fromBlock: fromBlock
     }
 
     const handler = async (event: EventData) => {
@@ -157,6 +162,7 @@ async function EventHandler(event: EventData): Promise<void> {
     } else if (event.event === "Unstaked") {
       await jober.removeJob(event.returnValues.staker)
     }
+    MailEvent({ event: event.event, hash: event.transactionHash, address: getAssociatedAddress(event), params: event.returnValues })
   }
   catch (e) {
     console.log(e);
@@ -183,5 +189,21 @@ jober.syncJobs().then(() => {
 
 export const UpdateContractData = updateContractData;
 
+
+function getAssociatedAddress(event: EventData) {
+  switch (event.event) {
+    case 'Staked':
+    case 'Unstaked':
+    case 'WithdrewStake':
+    case 'ClaimedRewards':
+    case 'MaxEarningsCapReached':
+    case 'MissedRewards': return event.returnValues.staker;
+
+    case 'WithdrewTokens': return event.returnValues.beneficiary;
+    case 'WithdrewXdc': return event.returnValues.beneficiary;
+
+    default: return ""
+  }
+}
 
 
