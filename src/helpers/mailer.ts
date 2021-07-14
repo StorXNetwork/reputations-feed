@@ -63,7 +63,7 @@ export const MailEvent = (event: Event) => {
     global.logger.error("mail recipients empty")
     return
   }
-  global.logger.info(`mailing new event: ${event.event}`)
+  global.logger.info(`mailing new event: ${event.event} to recipients from ${process.env.SMTP_USER}`)
   const data = EventHtml(event);
   transporter.sendMail({
     from: "event-bot@storx.io",
