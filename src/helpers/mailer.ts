@@ -70,5 +70,5 @@ export const MailEvent = (event: Event) => {
     to: recipients,
     subject: "StorX Event",
     html: data,
-  }).then(global.logger.silly).catch(global.logger.error)
+  }).then(global.logger.debug).catch(global.logger.error)
 }
