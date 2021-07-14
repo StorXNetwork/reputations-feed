@@ -17,8 +17,8 @@ const transporter = nodemailer.createTransport({
   port: 25,
   secure: false,
   auth: {
-    user: "storx.io@mail001.dakghar.in",
-    pass: "NIefvi0#$045",
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   }
 });
 
