@@ -6,6 +6,8 @@ import { Event } from "../models/events"
 import { fromXdcAddress } from 'xdc3-utils';
 import { GetRates } from '../helpers/price';
 import { Contact } from '../models/contact';
+import { User } from '../models/user';
+
 
 export const GetStakeHolder = (req: express.Request, res: express.Response): void => {
     res.json({ status: 200, data: [] })
@@ -48,5 +50,20 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
     }
 
     res.json({ status: 200, data: ret_data })
+}
+
+export const GetStats = async (req: express.Request, res: express.Response): Promise<void> => {
+    const contract = (await ContractData.findOne({}));
+    const stakeholder_count = Object.keys(contract?.stakeHolders as StakeHolder[]).length;
+    const staked_amount = contract?.totalStaked;
+    const user_count = (await User.count({}));
+
+    res.json({
+        status: 200, data: {
+            stakeholder_count,
+            staked_amount,
+            user_count
+        }
+    })
 }
 
