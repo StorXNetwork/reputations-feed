@@ -95,9 +95,9 @@ export const UpdateAddresReputation = async (
   const xdc3 = XdcObject.get_xdc3;
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   const currentReputation = await contract.methods.getReputation(address).call()
-  global.logger.info("repuation change:", currentReputation, reputation, currentReputation == reputation);
+  global.logger.debug("repuation change for", address, "-> current:", currentReputation, "updated:", "are equal:", reputation, currentReputation == reputation);
   if (currentReputation == reputation) {
-    global.logger.info("no change in reputation for", address, "skipping"); return true
+    global.logger.debug("no change in reputation for", address, "skipping"); return true
   }
   const data = contract.methods.setReputation(address, reputation).encodeABI();
   const tx: any = {

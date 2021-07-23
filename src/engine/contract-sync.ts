@@ -113,7 +113,7 @@ const ContractDataMethod = ['token', 'iRepF', 'reputationThreshold', 'hostingCom
 
 async function updateContractData() {
   try {
-    const xdc3 = XdcObject.get_xdc3
+    const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(process.env.HTTP_RPC as string));
     const stakingContract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS)
     const reputationContract = new xdc3.eth.Contract(ReputationFeedABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS)
 
@@ -147,7 +147,8 @@ async function updateContractData() {
     console.log("contract config updated");
   }
   catch (e) {
-    console.log(e);
+    global.logger.error(e);
+    setTimeout(updateContractData, 5000);
   }
 }
 
