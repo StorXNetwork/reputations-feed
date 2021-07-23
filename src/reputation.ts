@@ -65,7 +65,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
       const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
 
       if (!existingStaker.data.includes(wallet)) {
-        global.logger.info("sync: adding", address);
+        global.logger.info("sync: adding", address, wallet);
         const added = await AddStaker(wallet as string, reputation);
         if (added === null) return false;
       } else {

@@ -13,7 +13,7 @@ const XdcObject = new ReconnectableXdc3(NETWORK.ws);
 //   XdcObject.disconnect()
 // }, 10000)
 
-setInterval(async () => { 
+setInterval(async () => {
   const status = await XdcObject.status;
   global.logger.debug("status-xdc3:feed::", status);
 }, 15000)
@@ -94,6 +94,11 @@ export const UpdateAddresReputation = async (
 ): Promise<boolean> => {
   const xdc3 = XdcObject.get_xdc3;
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
+  const currentReputation = await contract.methods.getReputation().call()
+  global.logger.info("repuation change:", currentReputation, reputation, currentReputation == reputation);
+  if (currentReputation == reputation) {
+    global.logger.info("no change in reputation for", address, "skipping"); return true
+  }
   const data = contract.methods.setReputation(address, reputation).encodeABI();
   const tx: any = {
     data,
