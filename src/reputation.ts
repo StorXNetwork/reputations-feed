@@ -32,13 +32,13 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
      */
     const stakers = (await Contact.find({ reputation: { $gt: minRep } }));
 
-    const dbStakerAddress = await Promise.all(stakers.map(({ _id }) => {
-      return new Promise(async (resolve, reject) => {
-        Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean().then((data) => {
-          resolve(fromXdcAddress(data?.contract.payment_destination as string).toLowerCase())
-        }).catch(reject)
-      })
-    }))
+    const dbStakerAddress: string[] = [];
+
+    for (let i = 0; i < stakers.length; i++) {
+      const { _id } = stakers[i];
+      const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
+      dbStakerAddress.push(fromXdcAddress(data?.contract.payment_destination as string).toLowerCase())
+    }
 
     /**
      * 
