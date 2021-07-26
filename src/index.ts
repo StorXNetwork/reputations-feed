@@ -55,4 +55,4 @@ const run = async () =>
     .catch(console.log);
 
 
-run()
+setTimeout(run, 5000)
