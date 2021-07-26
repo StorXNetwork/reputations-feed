@@ -18,6 +18,8 @@ const mirroeSchema = new mongoose.Schema<MirrorDoc, mongoose.Model<MirrorDoc>>({
   data: { type: Object, },
 });
 
+mirroeSchema.index({ contact: 1 })
+
 const Mirror = connection_storx.model<MirrorDoc, mongoose.Model<MirrorDoc>>('Mirror', mirroeSchema);
 
 export { Mirror }
