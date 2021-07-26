@@ -64,11 +64,11 @@ export const MailEvent = (event: Event) => {
     return
   }
   global.logger.info(`mailing new event: ${event.event} to recipients from ${process.env.SMTP_USER}`)
-  const data = EventHtml(event);
-  transporter.sendMail({
-    from: "event-bot@storx.io",
-    to: recipients,
-    subject: "StorX Event",
-    html: data,
-  }).then(global.logger.debug).catch(global.logger.error)
+  // const data = EventHtml(event);
+  // transporter.sendMail({
+  //   from: "event-bot@storx.io",
+  //   to: recipients,
+  //   subject: "StorX Event",
+  //   html: data,
+  // }).then(global.logger.debug).catch(global.logger.error)
 }

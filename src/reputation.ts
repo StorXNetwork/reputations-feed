@@ -33,11 +33,15 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     const stakers = (await Contact.find({ reputation: { $gt: minRep } }));
 
     const dbStakerAddress: string[] = [];
+    const staker_address_map: { [key: string]: string } = {}
 
     for (let i = 0; i < stakers.length; i++) {
       const { _id } = stakers[i];
       const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
-      dbStakerAddress.push(fromXdcAddress(data?.contract.payment_destination as string).toLowerCase())
+      const wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
+      global.logger.debug("data", data?.contract.payment_destination);
+      dbStakerAddress.push(wallet)
+      staker_address_map[_id] = wallet;
     }
 
     /**
@@ -45,10 +49,6 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
      * staker: _id:xdc address mapping
      * 
      */
-    const staker_address_map = stakers.reduce((acc: { [key: string]: string }, cur, i) => {
-      acc[cur._id as string] = dbStakerAddress[i] as string;
-      return acc;
-    }, {})
 
 
     // stakers.map(({ _id }) => utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase());
