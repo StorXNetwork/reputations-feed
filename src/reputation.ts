@@ -30,7 +30,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
      * Stakers Contact Method
      * 
      */
-    const stakers = (await Contact.find({ reputation: { $gt: minRep } }));
+    const stakers = (await Contact.find({ reputation: { $gt: minRep } }).sort({ reputation: 1 }));
 
     const dbStakerAddress: string[] = [];
     const staker_address_map: { [key: string]: string } = {}
