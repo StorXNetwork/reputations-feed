@@ -103,5 +103,7 @@ export class ReconnectableXdc3 {
   reconnect() {
     this.provider = new Xdc3.providers.WebsocketProvider(this.ws)
     this.xdc3 = new Xdc3(this.provider);
+    console.log("reconnected");
+
   }
 }

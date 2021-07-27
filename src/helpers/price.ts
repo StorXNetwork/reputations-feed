@@ -4,12 +4,13 @@ import axios from "axios"
 const all_rates: any = {}
 
 const GetPrice = () => {
-  axios.get("https://www.bitrue.com/api/v1/ticker/24hr").then(data => {
-    const rates: Array<any> = data.data;
-
-    for (let i = 0; i < rates.length; i++) {
-      const coin = rates[i]
-      all_rates[coin.symbol] = coin.lastPrice
+  axios.get("https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker").then(data => {
+    const rates: any = data.data;
+    if (rates.data?.SRX_USDT?.last) {
+      all_rates.SRXUSDT = rates.data.SRX_USDT.last
+    }
+    if (rates.data?.XDC_USDT?.last) {
+      all_rates.XDCUSDT = rates.data.XDC_USDT.last
     }
     global.logger.debug("rates updated")
   }).catch(global.logger.error)
