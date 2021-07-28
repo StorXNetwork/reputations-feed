@@ -19,6 +19,8 @@ const mirroeSchema = new mongoose.Schema<MirrorDoc, mongoose.Model<MirrorDoc>>({
 });
 
 mirroeSchema.index({ contact: 1 })
+mirroeSchema.index({ "contract.payment_destination": 1 })
+
 
 const Mirror = connection_storx.model<MirrorDoc, mongoose.Model<MirrorDoc>>('Mirror', mirroeSchema);
 
