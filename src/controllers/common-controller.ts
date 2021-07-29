@@ -30,9 +30,9 @@ export const GetAssetPrice = async (req: express.Request, res: express.Response)
 
 export const GetNodeCoordinates = async (req: express.Request, res: express.Response): Promise<void> => {
     const stakeHolders = (await ContractData.findOne({}))?.stakeHolders;
-    const stakeId = Object.keys(stakeHolders as StakeHolder[]).map<string>((x: string) => stakeHolders?.[x as any].data?.contact);
-    const contactToAddress = Object.keys(stakeHolders as StakeHolder[]).reduce((acc: any, cur: any): any => {
-        acc[stakeHolders?.[cur].data?.contact] = cur;
+    const stakeId = Object.keys(stakeHolders as any).map<string>((x: string) => stakeHolders?.[x as any].contact as string);
+    const contactToAddress = Object.keys(stakeHolders as any).reduce((acc: any, cur: any): any => {
+        acc[stakeHolders?.[cur].contact as string] = cur;
         return acc;
     }, {})
 
@@ -43,7 +43,7 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
         const geo_data = geoIp.lookup(address.ip.split(",")[0]);
         ret_data.push({
             ...address,
-            xdc_address: contactToAddress[address._id],
+            xdc_address: address.paymentAddress ? address.paymentAddress : contactToAddress[address._id],
             coordinates: geo_data?.ll,
             geo_data,
         })
@@ -54,7 +54,7 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
 
 export const GetStats = async (req: express.Request, res: express.Response): Promise<void> => {
     const contract = (await ContractData.findOne({}));
-    const stakeholder_count = Object.keys(contract?.stakeHolders as StakeHolder[]).length;
+    const stakeholder_count = Object.keys(contract?.stakeHolders as any).length;
     const staked_amount = contract?.totalStaked;
     const user_count = (await User.count({}));
 

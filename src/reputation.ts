@@ -8,6 +8,7 @@ import utils from "xdc3-utils";
 import { Contact } from "./models/contact";
 import { Mirror } from "./models/mirror"
 import { fromXdcAddress } from 'xdc3-utils';
+import { ContractData } from "./models/contract-data";
 
 
 interface Reputation {
@@ -42,10 +43,14 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
         global.logger.debug("SyncStakers: wallet - contact", wallet);
-
       } else {
         const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
         wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
+        const contractData = await ContractData.findOne().lean()
+        if (contractData) {
+          contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
+        }
+
         global.logger.debug("SyncStakers: wallet - mirror", wallet);
       }
       dbStakerAddress.push(wallet)

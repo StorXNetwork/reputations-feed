@@ -3,13 +3,15 @@ import { connection_feed } from './connections';
 
 export interface StakeHolder {
   address: string;
-  stakedAmount:string;
+  stakedAmount: string;
   reputation: number;
-  data:any;
+  xdc_adddress: string;
+  data: any;
+  contact: string;
 }
 
 interface ContractDataAttr {
-  stakeHolders: StakeHolder[];
+  stakeHolders: { [key: string]: StakeHolder };
   token: string;
   iRepF: string;
   reputationThreshold: number;
@@ -25,7 +27,7 @@ interface ContractDataAttr {
 }
 
 interface ContractDataDoc extends mongoose.Document {
-  stakeHolders: StakeHolder[];
+  stakeHolders: { [key: string]: StakeHolder };
   token: string;
   iRepF: string;
   reputationThreshold: number;
