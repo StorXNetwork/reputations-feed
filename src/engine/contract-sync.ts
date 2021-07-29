@@ -120,6 +120,8 @@ async function updateContractData() {
     const data = await Promise.all([...ContractDataMethod.map(x => stakingContract.methods[x].apply().call())]);
 
     let modelAttr: any = {};
+    const exists = await ContractData.findOne({});
+
 
     modelAttr.stakeHolders = await stakingContract.methods.getAllStakeHolder().call()
 
@@ -135,11 +137,14 @@ async function updateContractData() {
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
       // Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[i] } })
       staker = (staker).toLowerCase()
-      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i] } })
+      let stakeHolderData = { reputation: stakeholderRep[i], stake: stakeholderStake[i] };
+      if (exists?.stakeHolders[staker]) {
+        stakeHolderData = { ...exists?.stakeHolders[staker], ...stakeHolderData }
+      }
+      Object.assign(acc, { [staker]: stakeHolderData })
       return acc
     }, {})
 
-    const exists = await ContractData.findOne({});
     if (exists) {
       Object.assign(exists, modelAttr);
       await exists.save()
