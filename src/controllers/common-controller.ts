@@ -36,7 +36,7 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
         return acc;
     }, {})
 
-    const addresses = (await Contact.find({ _id: { $in: stakeId } }).lean());
+    const addresses = (await Contact.find({ $or: [{ _id: { $in: stakeId } }, { paymentAddress: { $exists: true } }] }).lean());
 
     const ret_data = [];
     for (let address of addresses) {
