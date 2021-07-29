@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import {connection_storx} from "./connections";
+import { connection_storx } from "./connections";
 
 
 interface Contact {
@@ -9,6 +9,7 @@ interface Contact {
   protocol: string;
   ip: string;
   responseTime: number;
+  paymentAddress:string;
 }
 
 const ContactSchema = new Schema<Contact>({
@@ -68,6 +69,9 @@ const ContactSchema = new Schema<Contact>({
     type: String,
     required: false,
   },
+  paymentAddress: {
+    type: String
+  }
 });
 
 const Contact = connection_storx.model<Contact>("Contact", ContactSchema);

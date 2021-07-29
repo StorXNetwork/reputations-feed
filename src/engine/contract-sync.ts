@@ -131,9 +131,10 @@ async function updateContractData() {
     const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => reputationContract.methods.reputations(fromXdcAddress(x)).call()))
     const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => stakingContract.methods.stakes(fromXdcAddress(x)).call()))
 
-    const stakeHolderData = await Promise.all(modelAttr.stakeHolders.map((x: string) => Mirror.findOne({ 'contract.payment_destination': { $regex: new RegExp(toXdcAddress(x) as string, "i") } })))
+    // const stakeHolderData = await Promise.all(modelAttr.stakeHolders.map((x: string) => Mirror.findOne({ 'contract.payment_destination': { $regex: new RegExp(toXdcAddress(x) as string, "i") } })))
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
-      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[i] } })
+      // Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[i] } })
+      Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i] } })
       return acc
     }, {})
 
