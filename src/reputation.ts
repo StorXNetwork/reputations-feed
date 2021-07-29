@@ -49,6 +49,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         const contractData = await ContractData.findOne();
         if (contractData) {
           contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
+          await contractData.markModified("stakeHolders");
           await contractData.save();
         }
 
