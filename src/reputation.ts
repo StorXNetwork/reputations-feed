@@ -47,7 +47,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
         wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
         const contractData = await ContractData.findOne();
-        if (contractData) {
+        if (contractData && contractData.stakeHolders[wallet]) {
           contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
           await contractData.markModified("stakeHolders");
           await contractData.save();
