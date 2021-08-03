@@ -3,6 +3,7 @@ import { connection_storx } from "./connections";
 
 
 interface Contact {
+  _id:string;
   address: string;
   reputation: number;
   port: number;
@@ -10,6 +11,7 @@ interface Contact {
   ip: string;
   responseTime: number;
   paymentAddress:string;
+  lastSeen:Date;
 }
 
 const ContactSchema = new Schema<Contact>({

@@ -36,9 +36,11 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     const dbStakerAddress: string[] = [];
     const staker_address_map: { [key: string]: string } = {}
 
+    const address_to_contact: { [key: string]: Contact } = {}
+
     for (let i = 0; i < stakers.length; i++) {
       const { _id } = stakers[i];
-      const contactData = await Contact.findOne({ _id: _id });
+      const contactData = await Contact.findOne({ _id: _id }).sort({ lastSeen: -1 });
       let wallet;
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
@@ -55,9 +57,27 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
         global.logger.debug("SyncStakers: wallet - mirror", wallet);
       }
-      dbStakerAddress.push(wallet)
-      staker_address_map[_id] = wallet;
+
+      if (address_to_contact[wallet]) {
+
+        const oldDate = new Date(address_to_contact[wallet].lastSeen);
+        const currDate = new Date(contactData?.lastSeen as Date);
+
+        if (currDate.getTime() > oldDate.getTime()) {
+          // has better lastSeen, this will be considered as the latest contact for the wallet.
+          address_to_contact[wallet] = { ...stakers[i] };
+        }
+
+      } else {
+        address_to_contact[wallet] = { ...stakers[i] };
+
+        dbStakerAddress.push(wallet)
+        staker_address_map[_id] = wallet;
+      }
+
     }
+
+    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x])
 
     /**
      * 
@@ -73,9 +93,12 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     console.log("existingStaker", existingStaker.data.length);
 
 
+    console.log("filteredStakers", filteredStakers.length);
+    console.log("stakers", stakers.length);
+    
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
-    for (let staker of stakers) {
+    for (let staker of filteredStakers) {
       const { address, reputation, _id } = staker;
       const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
 
@@ -122,3 +145,60 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ *
+
+    const parsedAddress: { [key: string]: Contact } = {};
+
+
+    allstakers.reduce((acc: Contact[], cur: Contact): Contact[] => {
+      if (cur.paymentAddress && parsedAddress[cur.paymentAddress]) {
+        const currentLastSeen = new Date(cur.lastSeen);
+        const oldLastSeen = new Date(parsedAddress[cur.paymentAddress].lastSeen);
+        if (currentLastSeen.getTime() > oldLastSeen.getTime()) {
+          parsedAddress[cur.paymentAddress] = cur;
+        }
+      }
+      return acc;
+    }, [])
+
+
+ *
+ *
+ */
+
+
+
+// Contact.find({ reputation: { $gt: 1 } }).sort({ reputation: 1 }).then(allstakers => {
+//   const parsedAddress = allstakers.reduce((acc: { [key: string]: Contact }, cur: Contact): { [key: string]: Contact } => {
+//     if (cur.paymentAddress && acc[cur.paymentAddress]) {
+//       const currentLastSeen = new Date(cur.lastSeen);
+//       const oldLastSeen = new Date(acc[cur.paymentAddress].lastSeen);
+//       if (currentLastSeen.getTime() > oldLastSeen.getTime()) {
+//         acc[cur.paymentAddress] = cur;
+//       }
+//     } else {
+//       acc[cur.paymentAddress] = cur;
+//     }
+//     return acc;
+//   }, {});
+
+//   console.log("parsedAddress", parsedAddress);
+
+// })
+
+
+    // const parsedAddress: { [key: string]: Contact } = {};
+
+
+    // allstakers.reduce((acc: Contact[], cur: Contact): Contact[] => {
+    //   if (cur.paymentAddress && parsedAddress[cur.paymentAddress]) {
+    //     const currentLastSeen = new Date(cur.lastSeen);
+    //     const oldLastSeen = new Date(parsedAddress[cur.paymentAddress].lastSeen);
+    //     if (currentLastSeen.getTime() > oldLastSeen.getTime()) {
+    //       parsedAddress[cur.paymentAddress] = cur;
+    //     }
+    //   }
+    //   return acc;
+    // }, [])
