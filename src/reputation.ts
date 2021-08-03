@@ -66,6 +66,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         if (currDate.getTime() > oldDate.getTime()) {
           // has better lastSeen, this will be considered as the latest contact for the wallet.
           address_to_contact[wallet] = { ...stakers[i] };
+          staker_address_map[_id] = wallet;
         }
 
       } else {
