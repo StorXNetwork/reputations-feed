@@ -31,7 +31,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
      * Stakers Contact Method
      * 
      */
-    const stakers = (await Contact.find({ reputation: { $gt: minRep } }).sort({ reputation: 1 }));
+    const stakers = (await Contact.find({ reputation: { $gt: minRep } }).sort({ reputation: 1 }).lean());
 
     const dbStakerAddress: string[] = [];
     const staker_address_map: { [key: string]: string } = {}
@@ -74,9 +74,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
         dbStakerAddress.push(wallet)
         staker_address_map[_id] = wallet;
-      }
-      console.log("staker_address_map", staker_address_map);
-      
+      }      
     }
 
     const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x])
