@@ -38,13 +38,15 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     const address_to_contact: { [key: string]: Contact } = {}
 
-    for (let i = 0; i < stakers.length; i++) {
+    const stakerLength = stakers.length;
+
+    for (let i = 0; i < stakerLength; i++) {
       const { _id } = stakers[i];
       const contactData = await Contact.findOne({ _id: _id }).sort({ lastSeen: -1 });
       let wallet;
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
-        global.logger.debug("SyncStakers: wallet - contact", wallet);
+        global.logger.debug("SyncStakers: wallet - contact", wallet, `${i+1} of ${stakerLength}`);
       } else {
         const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
         wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
@@ -55,7 +57,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
           await contractData.save();
         }
 
-        global.logger.debug("SyncStakers: wallet - mirror", wallet);
+        global.logger.debug("SyncStakers: wallet - mirror", wallet, `${i+1} of ${stakerLength}`);
       }
 
       if (address_to_contact[wallet]) {
