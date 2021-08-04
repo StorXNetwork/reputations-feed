@@ -34,6 +34,7 @@ export class ClaimAddressCron {
     this.provider = new Xdc3.providers.WebsocketProvider(connObj.ws)
     this.xdc3 = new Xdc3(this.provider);
     this.reconn()
+    this._claimRewards = this._claimRewards.bind(this)
     this.limitedClaimRewardsFunc = new LimittedParallel<[string, (receipt: TransactionReceipt | null) => void]>(this._claimRewards, 1)
   }
 
@@ -194,7 +195,7 @@ export class ClaimAddressCron {
   }
 
   claimRewards(address: string, cb: (receipt: TransactionReceipt | null) => void): void {
-    this.limitedClaimRewardsFunc.add([address, cb])
+    this.limitedClaimRewardsFunc.add([address, cb.bind(this)])
   }
 
   async _claimRewards(address: string, cb: (receipt: TransactionReceipt | null) => void): Promise<void> {
