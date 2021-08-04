@@ -6,6 +6,7 @@ import { NETWORK, STAKING_CONTRACT_ADDRESS, ACCOUNT } from '../config';
 import StakingABI from "../ABI/Staking.json"
 import { AbiItem, toXdcAddress } from 'xdc3-utils';
 import { ClaimCron } from "../models/claim-cron";
+import { LimittedParallel } from './LimitedParallel';
 
 
 
@@ -26,12 +27,14 @@ export class ClaimAddressCron {
   reconnInterval: any;
   jobs: Job = {};
   addresses: string[] = []
+  limitedClaimRewardsFunc: LimittedParallel<[string, (receipt: TransactionReceipt | null) => void]>
 
 
   constructor(public connObj: NetworkOption) {
     this.provider = new Xdc3.providers.WebsocketProvider(connObj.ws)
     this.xdc3 = new Xdc3(this.provider);
     this.reconn()
+    this.limitedClaimRewardsFunc = new LimittedParallel<[string, (receipt: TransactionReceipt | null) => void]>(this._claimRewards, 1)
   }
 
   async addJob(address: string): Promise<void> {
@@ -79,42 +82,47 @@ export class ClaimAddressCron {
 
   setJob(address: string, invocation_time: Date) {
     address = toXdcAddress(address) as string
-    if (invocation_time.getTime() < Date.now()) {
+    let finalInvcationTime = invocation_time
+    if (finalInvcationTime.getTime() < Date.now()) {
       global.logger.info("invocation date missed, retrying in 5 seconds for", address)
-      invocation_time = new Date(Date.now() + 5000)
+      finalInvcationTime = new Date(Date.now() + 5000)
     }
-    this.jobs[address] = new CronJob(invocation_time, async () => {
-      try {
-        global.logger.debug("executing job", address);
+    this.jobs[address] = new CronJob(finalInvcationTime, async () => {
 
-        const receipt = await this.claimRewards(address)
+      global.logger.debug("executing job", address);
 
-        global.logger.debug("job result", address, receipt);
+      this.claimRewards(address, async receipt => {
+        try {
 
-        // const receipt = null
-        const claim = await ClaimCron.findOne({ $and: [{ staker: toXdcAddress(address) as string }, { active: true }, { invocation_time: invocation_time }] });
-        if (claim) {
-          claim.active = false;
-          claim.receipt = null;
-          claim.status = receipt !== null;
-          await claim.save();
+          global.logger.debug("job result", address, receipt);
+
+          // const receipt = null
+          const claim = await ClaimCron.findOne({ $and: [{ staker: toXdcAddress(address) as string }, { active: true }, { invocation_time: invocation_time }] });
+          if (claim) {
+            claim.active = false;
+            claim.receipt = receipt;
+            claim.status = receipt !== null;
+            await claim.save();
+          }
+
+
+        } catch (e) {
+          console.log(e);
+          const claim = await ClaimCron.findOne({ $and: [{ staker: toXdcAddress(address) as string }, { active: true }, { invocation_time: invocation_time }] });
+          if (claim) {
+            claim.active = false;
+            claim.receipt = null;
+            claim.status = false;
+            await claim.save();
+          }
         }
-
-
-      } catch (e) {
-        console.log(e);
-        const claim = await ClaimCron.findOne({ $and: [{ staker: toXdcAddress(address) as string }, { active: true }, { invocation_time: invocation_time }] });
-        if (claim) {
-          claim.active = false;
-          claim.receipt = null;
-          claim.status = false;
-          await claim.save();
+        finally {
+          global.logger.debug("job new adding", address);
+          this.addJob(address)
         }
-      }
-      finally {
-        global.logger.debug("job new adding", address);
-        this.addJob(address)
-      }
+      })
+
+
 
     }, () => {
       this.jobs[address] = null;
@@ -185,30 +193,34 @@ export class ClaimAddressCron {
     }
   }
 
-  async claimRewards(address: string): Promise<TransactionReceipt | null> {
-    address = toXdcAddress(address) as string
-    return new Promise(async (resolve, reject) => {
-      try {
-        const contract = new this.xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
-        const data = contract.methods.claimEarned(address).encodeABI()
+  claimRewards(address: string, cb: (receipt: TransactionReceipt | null) => void): void {
+    this.limitedClaimRewardsFunc.add([address, cb])
+  }
 
-        const tx: any = {
-          to: STAKING_CONTRACT_ADDRESS,
-          data: data,
-          from: ACCOUNT.address
-        }
-        const gas = await this.xdc3.eth.estimateGas(tx)
-        tx["gasLimit"] = gas
-        const signed = await this.xdc3.eth.accounts.signTransaction(tx, ACCOUNT.privateKey)
-        this.xdc3.eth.sendSignedTransaction(signed.rawTransaction as string).once('receipt', resolve).catch(e => {
-          console.log(e);
-          resolve(null)
-        })
-      } catch (e) {
-        console.log(e);
-        resolve(null)
+  async _claimRewards(address: string, cb: (receipt: TransactionReceipt | null) => void): Promise<void> {
+    address = toXdcAddress(address) as string
+
+    try {
+      const contract = new this.xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
+      const data = contract.methods.claimEarned(address).encodeABI()
+
+      const tx: any = {
+        to: STAKING_CONTRACT_ADDRESS,
+        data: data,
+        from: ACCOUNT.address
       }
-    })
+      const gas = await this.xdc3.eth.estimateGas(tx)
+      tx["gasLimit"] = gas
+      const signed = await this.xdc3.eth.accounts.signTransaction(tx, ACCOUNT.privateKey)
+      this.xdc3.eth.sendSignedTransaction(signed.rawTransaction as string).once('receipt', cb).catch(e => {
+        global.logger.error(e)
+        cb(null)
+      })
+    } catch (e) {
+      console.log(e);
+      global.logger.error(e);
+      cb(null)
+    }
   }
 
   reconn() {
