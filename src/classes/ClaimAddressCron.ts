@@ -79,11 +79,18 @@ export class ClaimAddressCron {
 
   setJob(address: string, invocation_time: Date) {
     address = toXdcAddress(address) as string
+    if (invocation_time.getTime() < Date.now()) {
+      global.logger.info("invocation date missed, retrying in 5 seconds for", address)
+      invocation_time = new Date(Date.now() + 5000)
+    }
     this.jobs[address] = new CronJob(invocation_time, async () => {
       try {
-        console.log("executing job", address);
-        
+        global.logger.debug("executing job", address);
+
         const receipt = await this.claimRewards(address)
+
+        global.logger.debug("job result", address, receipt);
+
         // const receipt = null
         const claim = await ClaimCron.findOne({ $and: [{ staker: toXdcAddress(address) as string }, { active: true }, { invocation_time: invocation_time }] });
         if (claim) {
@@ -105,12 +112,13 @@ export class ClaimAddressCron {
         }
       }
       finally {
+        global.logger.debug("job new adding", address);
         this.addJob(address)
       }
 
     }, () => {
       this.jobs[address] = null;
-    })
+    }, true)
   }
 
   async removeJob(address: string): Promise<void> {
