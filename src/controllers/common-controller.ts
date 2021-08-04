@@ -19,7 +19,7 @@ export const GetContractData = async (req: express.Request, res: express.Respons
 }
 
 export const GetUserEvents = async (req: express.Request, res: express.Response): Promise<void> => {
-    const data = await Event.find({ associated_address: fromXdcAddress(req.params.address) as string }).sort({ block: -1 })
+    const data = await Event.find({ associated_address: new RegExp(`^${fromXdcAddress(req.params.address)}$`, 'i') }).sort({ block: -1 })
     res.json({ status: 200, data: data })
 }
 
@@ -42,7 +42,7 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
     for (let address of addresses) {
         const geo_data = geoIp.lookup(address.ip.split(",")[0]);
         ret_data.push({
-            repuation:address.reputation,
+            repuation: address.reputation,
             xdc_address: address.paymentAddress ? address.paymentAddress : contactToAddress[address._id],
             coordinates: geo_data?.ll,
             geo_data,
