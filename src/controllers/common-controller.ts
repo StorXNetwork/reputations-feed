@@ -42,7 +42,7 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
     for (let address of addresses) {
         const geo_data = geoIp.lookup(address.ip.split(",")[0]);
         ret_data.push({
-            ...address,
+            repuation:address.reputation,
             xdc_address: address.paymentAddress ? address.paymentAddress : contactToAddress[address._id],
             coordinates: geo_data?.ll,
             geo_data,
