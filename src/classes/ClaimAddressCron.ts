@@ -81,6 +81,8 @@ export class ClaimAddressCron {
     address = toXdcAddress(address) as string
     this.jobs[address] = new CronJob(invocation_time, async () => {
       try {
+        console.log("executing job", address);
+        
         const receipt = await this.claimRewards(address)
         // const receipt = null
         const claim = await ClaimCron.findOne({ $and: [{ staker: toXdcAddress(address) as string }, { active: true }, { invocation_time: invocation_time }] });
