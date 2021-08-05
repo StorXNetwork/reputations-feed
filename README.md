@@ -3,7 +3,9 @@
 This application maintains the data feed of reputations as updated by the StorX AI. Reputations are a quantitative repreesentation of a farmer node's performance in the storx network.  
 
 Current UI at: https://farmer.storx.io  
-Public API available at: https://farmerapi.storx.io  
+Public API available at: https://farmerapi.storx.io    
+Public API documentation: https://farmerapi.storx.io/docs.html  
+
 
 ## Running app
 
