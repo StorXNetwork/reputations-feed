@@ -34,6 +34,8 @@ app.use(commonRoutes)
 // app.use(storxRoutes)
 
 app.use(express.static(path.join(__dirname,"../", "docs")))
+app.use("/assets", express.static(path.join(__dirname,"../", "assets")))
+
 
 app.all('*', async (req, res) => {
   throw new NotFoundError();

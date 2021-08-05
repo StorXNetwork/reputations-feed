@@ -75,7 +75,7 @@ async function watch() {
 
     if (lastEvent) lastSyncBlock = lastEvent.block
 
-    const fromBlock = MaxOf(lastSyncBlock, INITIAL_BLOCK)
+    const fromBlock = MaxOf(lastSyncBlock + 1, INITIAL_BLOCK)
 
     global.logger.info(`watching from ${fromBlock}`)
 
@@ -87,7 +87,6 @@ async function watch() {
     }
 
     const handler = async (event: EventData) => {
-      console.log("event", event.event);
       const exists = await Event.findOne({ $and: [{ tx_hash: event.transactionHash }, { name: event.event }] })
       if (exists) return
 
