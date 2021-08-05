@@ -3,6 +3,7 @@ import { config } from "dotenv"
 import 'express-async-errors';
 import { json } from 'body-parser';
 import cors from "cors"
+import path from "path"
 
 import "./helpers/logger"
 
@@ -31,6 +32,8 @@ app.use(cors())
 
 app.use(commonRoutes)
 // app.use(storxRoutes)
+
+app.use(express.static(path.join(__dirname,"../", "docs")))
 
 app.all('*', async (req, res) => {
   throw new NotFoundError();

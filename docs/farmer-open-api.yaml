@@ -1,0 +1,341 @@
+---
+openapi: 3.0.1
+info:
+  title: Farmer API
+  description: | 
+    # Introduction
+
+    This is the documentation for apis used by the site [farmer.storx.io](https://farmer.storx.io).  
+    
+    They consist of publicly available, non-authenticated APIs.
+
+    # Endpoints
+
+    The APIs are hosted at the endpoint `https://farmerapi.storx.io`.  
+
+    The corresponding repository is available publicly at [StorX Github](https://github.com/StorXNetwork/reputations-feed).
+  version: "0.1"
+
+  x-logo:
+    url: https://storx.tech/assets/images/storx-logo.png
+    width: 10px
+servers:
+- url: https://farmerapi.storx.io
+paths:
+  /get-stats:
+    get:
+      tags:
+        - general
+      summary: Get Stats
+      description: Get general statistics as displayed in the https://storx.tech website.
+      responses:
+        "200":
+          description: successfully got the data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+              example:
+                status: 200
+                data:
+                  stakerholder_count: 2000
+                  staked_amount: 5000000000000000000
+                  user_count: 100000
+        "400":
+          description: error while loading data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      servers:
+      - url: https://farmerapi.storx.io
+    servers:
+    - url: https://farmerapi.storx.io
+  /get-node-coordinates:
+    get:
+      tags:
+        - general
+      summary: Get Node Coordinates
+      description: Get coordinates for all staked nodes identified by their XDC address.
+      responses:
+        "200":
+          description: successfully got the data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                status: 200
+                data:
+                  xdc_address: xdc646ee0a7d8aa2c2f5784672fe0e3e7de6ccab4dc
+                  reputation: 5000
+                  coordinates:
+                  - 18.5184
+                  - 73.8478
+                  geo_data:
+                    country: IN
+                    region: MH
+                    timezone: Asia/Kolkata
+                    city: Mumbai
+        "400":
+          description: error while loading data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      servers:
+      - url: https://farmerapi.storx.io
+    servers:
+    - url: https://farmerapi.storx.io
+  /get-user-events/{address}:
+    get:
+      tags:
+        - general
+      summary: Get User Events
+      description: Get coordinates for all staked nodes identified by their XDC address.
+      parameters:
+      - name: address
+        in: path
+        description: xdc address whose events are required
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successfully got the data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+              example:
+                status: 200
+                data:
+                - name: Staked
+                  _id: 60e2b36b7e38a83cf0f00283
+                  block: 32088775
+                  data:
+                    staker: 0xD3A38758F937d48c963425B31af76dC3DA8EbC9b
+                    amount: "10000000000000000000000"
+                  tx_hash: 0x275aa301194a617c3028bd931370c8588c54ee3c042726e8fd2a4b98b8f4f758
+                  associated_address: 0xD3A38758F937d48c963425B31af76dC3DA8EbC9b
+        "400":
+          description: error while loading data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      servers:
+      - url: https://farmerapi.storx.io
+    servers:
+    - url: https://farmerapi.storx.io
+  /get-asset-price:
+    get:
+      tags:
+        - general
+      summary: Get Asset Price
+      description: Get XDC & SRX price as displayed on the farmer site
+      responses:
+        "200":
+          description: successfully got the data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+              example:
+                status: 200
+                data:
+                  SRXUSDT: "1.665388"
+                  XDCUSDT: "0.07682"
+        "400":
+          description: error while loading data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      servers:
+      - url: https://farmerapi.storx.io
+    servers:
+    - url: https://farmerapi.storx.io
+  /get-contract-data:
+    get:
+      tags:
+        - general
+      summary: Get Contract Data
+      description: get staking contract data like total staked, minimum stake amount
+      responses:
+        "200":
+          description: successfully got the data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_4'
+              example:
+                status: 200
+                data:
+                  token: 0x5D5f074837f5d4618B3916ba74De1Bf9662a3fEd
+                  iRepF: 0x5DB64839828174D2D29B419E5581C16C67D62046
+                  reputationThreshold: 10
+                  hostingCompensation: 9000000000000000000000
+                  totalStaked: 1000000000000000000000000
+                  minStakeAmount: 3000000000000000000000
+                  maxStakeAmount: 1000000000000000000000000
+                  coolOff: 604800
+                  interest: 600
+                  interestPrecision: 100
+                  totalRedeemed: 0
+                  redeemInterval: 2592000
+        "400":
+          description: error while loading data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      servers:
+      - url: https://farmerapi.storx.io
+    servers:
+    - url: https://farmerapi.storx.io
+components:
+  schemas:
+    inline_response_200:
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            stakerholder_count:
+              type: integer
+            staked_amount:
+              type: integer
+            user_count:
+              type: integer
+    inline_response_400:
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+      example:
+        errors:
+        - message: Something went wrong
+    inline_response_200_1:
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            _id:
+              type: string
+              description: unique identifier
+            address:
+              type: string
+              description: public IP address of node
+            xdc_address:
+              type: string
+              description: xdc address associated with node
+            reputation:
+              type: number
+              description: reputation associated with the node
+            coordinates:
+              type: array
+              description: Latitiute & Longitude
+              items:
+                type: number
+            geo_data:
+              type: object
+              properties:
+                country:
+                  type: string
+                region:
+                  type: string
+                timezone:
+                  type: string
+                city:
+                  type: string
+              description: geolocation data of the node
+    inline_response_200_2:
+      properties:
+        status:
+          type: integer
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              name:
+                type: string
+                description: event name
+              block:
+                type: number
+                description: block in which TX was included
+              data:
+                type: object
+              tx_hash:
+                type: string
+                description: tx hash associated with the event
+              associated_address:
+                type: string
+                description: address associated with the event
+    inline_response_200_3:
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            SRXUSDT:
+              type: string
+            XDCUSDT:
+              type: string
+    inline_response_200_4:
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              description: SRX token address
+            iRepF:
+              type: string
+              description: current repuation feed smart contract
+            reputationThreshold:
+              type: number
+            hostingCompensation:
+              type: number
+              description: hosting compensation per annum in SRX WEI
+            totalStaked:
+              type: number
+              description: total amount staked in SRX WEI
+            minStakeAmount:
+              type: number
+              description: minimum amount which can be staked in SRX WEI
+            maxStakeAmount:
+              type: number
+              description: maximum amount which can be staked in SRX WEI
+            coolOff:
+              type: number
+              description: time in seconds after which unstaked amount can be claimed
+            interest:
+              type: number
+              description: rewards interest per annum, multipled by 10^interestPrecision
+            interestPrecision:
+              type: number
+              description: precision for interest to account for decimals
+            totalRedeemed:
+              type: number
+              description: total rewards minted in SRX WEI
+            redeemInterval:
+              type: number
+              description: time in seconds rewards will be credited to wallet
+            stakeholders:
+              type: object
