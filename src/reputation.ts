@@ -46,18 +46,23 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
       let wallet;
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
-        global.logger.debug("SyncStakers: wallet - contact", wallet, `${i+1} of ${stakerLength}`);
+        global.logger.debug("SyncStakers: wallet - contact", wallet, `${i + 1} of ${stakerLength}`);
       } else {
         const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
-        wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
-        const contractData = await ContractData.findOne();
-        if (contractData && contractData.stakeHolders[wallet]) {
-          contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
-          await contractData.markModified("stakeHolders");
-          await contractData.save();
-        }
 
-        global.logger.debug("SyncStakers: wallet - mirror", wallet, `${i+1} of ${stakerLength}`);
+        if (data && data.contract && data.contract.payment_destination) {
+          wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
+          const contractData = await ContractData.findOne();
+          if (contractData && contractData.stakeHolders[wallet]) {
+            contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
+            await contractData.markModified("stakeHolders");
+            await contractData.save();
+          }
+
+          global.logger.debug("SyncStakers: wallet - mirror", wallet, `${i + 1} of ${stakerLength}`);
+        }
+        else continue
+
       }
 
       if (address_to_contact[wallet]) {
@@ -76,7 +81,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
         dbStakerAddress.push(wallet)
         staker_address_map[_id] = wallet;
-      }      
+      }
     }
 
     const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x])
@@ -97,7 +102,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     console.log("filteredStakers", filteredStakers.length);
     console.log("stakers", stakers.length);
-    
+
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
     for (let staker of filteredStakers) {
