@@ -3,10 +3,11 @@ import geoIp from "geoip-lite"
 
 import { ContractData, StakeHolder } from '../models/contract-data';
 import { Event } from "../models/events"
-import { fromXdcAddress } from 'xdc3-utils';
+import { fromXdcAddress, toXdcAddress } from 'xdc3-utils';
 import { GetRates } from '../helpers/price';
 import { Contact } from '../models/contact';
 import { User } from '../models/user';
+import { BadRequestError } from '../helpers/errors';
 
 
 export const GetStakeHolder = (req: express.Request, res: express.Response): void => {
@@ -50,6 +51,35 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
     }
 
     res.json({ status: 200, data: ret_data })
+}
+
+export const GetSingleNodeCoordinates = async (req: express.Request, res: express.Response): Promise<void> => {
+    const xdcwallet = fromXdcAddress(req.params.xdcwallet).toLowerCase();
+    const stakeHolders = (await ContractData.findOne({}).lean())?.stakeHolders;
+
+    const reducedStakeholders = stakeHolders && Object.keys(stakeHolders).reduce<any>((acc, cur) => {
+        acc[cur.toLowerCase()] = stakeHolders[cur];
+        return acc;
+    }, {});
+
+
+
+    const stakeId = reducedStakeholders && reducedStakeholders[xdcwallet].data.contact
+    console.log("reducedStakeholders", reducedStakeholders);
+
+
+    const contact = await Contact.findOne({ _id: stakeId });
+
+    if (!contact) throw new BadRequestError("address not found");
+    const geo_data = geoIp.lookup(contact.ip.split(",")[0]);
+    res.json({
+        status: 200, data: {
+            repuation: contact.reputation,
+            xdc_address: toXdcAddress(xdcwallet),
+            coordinates: geo_data?.ll,
+            geo_data,
+        }
+    })
 }
 
 export const GetStats = async (req: express.Request, res: express.Response): Promise<void> => {

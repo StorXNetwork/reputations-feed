@@ -196,6 +196,51 @@ paths:
       - url: https://farmerapi.storx.io
     servers:
     - url: https://farmerapi.storx.io
+  /get-single-node-cooridnates/{xdcwallet}:
+    get:
+      tags:
+        - general
+      summary: Get Single Node Coordinates
+      description: get coordinates for a given xdc wallet
+      parameters:
+        - name: address
+          in: path
+          description: xdc address whose events are required
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successfully got the data         
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_5'
+              example:
+                status: 200
+                data:
+                  xdc_address: xdc646ee0a7d8aa2c2f5784672fe0e3e7de6ccab4dc
+                  reputation: 5000
+                  coordinates:
+                  - 18.5184
+                  - 73.8478
+                  geo_data:
+                    country: IN
+                    region: MH
+                    timezone: Asia/Kolkata
+                    city: Mumbai
+        "400":
+          description: error while loading data
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      servers:
+      - url: https://farmerapi.storx.io
+    servers:
+    - url: https://farmerapi.storx.io
 components:
   schemas:
     inline_response_200:
@@ -339,3 +384,39 @@ components:
               description: time in seconds rewards will be credited to wallet
             stakeholders:
               type: object
+    inline_response_200_5:
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            _id:
+              type: string
+              description: unique identifier
+            address:
+              type: string
+              description: public IP address of node
+            xdc_address:
+              type: string
+              description: xdc address associated with node
+            reputation:
+              type: number
+              description: reputation associated with the node
+            coordinates:
+              type: array
+              description: Latitiute & Longitude
+              items:
+                type: number
+            geo_data:
+              type: object
+              properties:
+                country:
+                  type: string
+                region:
+                  type: string
+                timezone:
+                  type: string
+                city:
+                  type: string
+              description: geolocation data of the node
