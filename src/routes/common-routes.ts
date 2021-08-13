@@ -13,7 +13,7 @@ router.get("/get-contract-data", CommonController.GetContractData);
 router.get('/get-user-events/:address', ValidateRequest([param('address').custom(x => utils.isAddress(x))]), CommonController.GetUserEvents)
 router.get("/get-asset-price", CommonController.GetAssetPrice);
 router.get("/get-node-coordinates", CommonController.GetNodeCoordinates);
-router.get("/get-single-node-coordinate/:xdcwallet", CommonController.GetSingleNodeCoordinates);
+router.get("/get-single-node-coordinates/:xdcwallet", CommonController.GetSingleNodeCoordinates);
 
 router.get("/get-stats", CommonController.GetStats);
 
