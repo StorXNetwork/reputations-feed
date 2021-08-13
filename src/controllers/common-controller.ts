@@ -65,8 +65,6 @@ export const GetSingleNodeCoordinates = async (req: express.Request, res: expres
 
 
     const stakeId = reducedStakeholders && reducedStakeholders[xdcwallet].contact
-    console.log("reducedStakeholders", reducedStakeholders);
-
 
     const contact = await Contact.findOne({ _id: stakeId });
 
