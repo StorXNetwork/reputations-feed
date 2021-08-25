@@ -205,13 +205,17 @@ export class ClaimAddressCron {
       const contract = new this.xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
       const data = contract.methods.claimEarned(address).encodeABI()
 
+      const count = await this.xdc3.eth.getTransactionCount(address);
+
       const tx: any = {
         to: STAKING_CONTRACT_ADDRESS,
         data: data,
-        from: ACCOUNT.address
+        from: ACCOUNT.address,
+        nonce: count
       }
       const gas = await this.xdc3.eth.estimateGas(tx)
       tx["gasLimit"] = gas
+      global.logger.info("tx", tx);
       const signed = await this.xdc3.eth.accounts.signTransaction(tx, ACCOUNT.privateKey)
       this.xdc3.eth.sendSignedTransaction(signed.rawTransaction as string).once('receipt', cb).catch(e => {
         global.logger.error(e)
