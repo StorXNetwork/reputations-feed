@@ -34,29 +34,34 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     const stakers = (await Contact.find({ reputation: { $gt: minRep } }).sort({ reputation: 1 }).lean());
 
     const dbStakerAddress: string[] = [];
-    const staker_address_map: { [key: string]: string } = {}
+    const staker_address_map: { [key: string]: string } = { }
 
-    const address_to_contact: { [key: string]: Contact } = {}
+    const address_to_contact: { [key: string]: Contact } = { }
 
     const stakerLength = stakers.length;
+
+    const contractData = await ContractData.findOne();
 
     for (let i = 0; i < stakerLength; i++) {
       const { _id } = stakers[i];
       const contactData = await Contact.findOne({ _id: _id }).sort({ lastSeen: -1 });
+
       let wallet;
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
+        if (contractData && contractData.stakeHolders[wallet]) {
+          contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
+        }
         global.logger.debug("SyncStakers: wallet - contact", wallet, `${i + 1} of ${stakerLength}`);
+
       } else {
         const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
 
         if (data && data.contract && data.contract.payment_destination) {
           wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
-          const contractData = await ContractData.findOne();
           if (contractData && contractData.stakeHolders[wallet]) {
             contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
-            await contractData.markModified("stakeHolders");
-            await contractData.save();
+
           }
 
           global.logger.debug("SyncStakers: wallet - mirror", wallet, `${i + 1} of ${stakerLength}`);
@@ -83,6 +88,9 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         staker_address_map[_id] = wallet;
       }
     }
+
+    contractData && await contractData.markModified("stakeHolders");
+    contractData && await contractData.save();
 
     const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x])
 

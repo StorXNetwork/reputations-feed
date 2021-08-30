@@ -38,7 +38,7 @@ async function sync() {
     const contract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS)
 
     let lastSyncBlock = 0;
-    const lastEvent = await Event.findOne({}).sort({ block: -1 });
+    const lastEvent = await Event.findOne({ }).sort({ block: -1 });
     const latestBlock = await xdc3.eth.getBlock('latest');
     if (lastEvent) lastSyncBlock = lastEvent.block
 
@@ -142,7 +142,7 @@ async function updateContractData() {
       }
       Object.assign(acc, { [staker]: stakeHolderData })
       return acc
-    }, {})
+    }, { })
 
     if (exists) {
       Object.assign(exists, modelAttr);
@@ -173,7 +173,6 @@ async function EventHandler(event: EventData): Promise<void> {
   }
   catch (e) {
     console.log(e);
-
   }
 }
 
