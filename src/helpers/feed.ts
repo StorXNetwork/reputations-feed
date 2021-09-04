@@ -155,7 +155,7 @@ export const GetAllStaker = async (): Promise<{
     if (stakers === null) return { status: false, data: [] };
     return { status: true, data: stakers };
   } catch (e) {
-    // console.trace(e);
+    console.trace(e);
     return { status: false, data: [] };
   }
 };
