@@ -32,7 +32,7 @@ export const GeneralContractMethodView = (
       const data = await contract.methods[method](...params).call();
       resolve(data);
     } catch (e) {
-      // console.trace(e);
+      console.trace(e);
       reject(e);
     }
   });

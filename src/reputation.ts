@@ -16,7 +16,9 @@ interface Reputation {
   reputation: number;
 }
 
-GetAllStaker().then(data => console.log(data.data.length)).catch(console.error)
+setInterval(() => {
+  GetAllStaker().then(data => console.log(data.data.length)).catch(console.error)
+}, 5000)
 
 
 export async function GetReputation(minRep: number = 0): Promise<Reputation[]> {
