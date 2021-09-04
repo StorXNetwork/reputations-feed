@@ -16,6 +16,8 @@ interface Reputation {
   reputation: number;
 }
 
+GetAllStaker().then(data => console.log(data.data.length)).catch(console.error)
+
 
 export async function GetReputation(minRep: number = 0): Promise<Reputation[]> {
   const resp = await Contact.find({ reputation: { $gte: minRep } });
