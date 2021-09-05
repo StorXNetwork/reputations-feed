@@ -16,10 +16,6 @@ interface Reputation {
   reputation: number;
 }
 
-setInterval(() => {
-  GetAllStaker().then(data => console.log(data.data.length)).catch(console.error)
-}, 5000)
-
 
 export async function GetReputation(minRep: number = 0): Promise<Reputation[]> {
   const resp = await Contact.find({ reputation: { $gte: minRep } });
@@ -96,7 +92,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     contractData && await contractData.markModified("stakeHolders");
     contractData && await contractData.save();
 
-    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x]).sort((a, b) => a.reputation-b.reputation);
+    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x])
 
     /**
      * 
