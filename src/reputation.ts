@@ -92,7 +92,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     contractData && await contractData.markModified("stakeHolders");
     contractData && await contractData.save();
 
-    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x])
+    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x]).sort((a, b) => a.reputation-b.reputation);
 
     /**
      * 
