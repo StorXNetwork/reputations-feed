@@ -164,12 +164,12 @@ function MaxOf(a: number, b: number): number {
 
 async function EventHandler(event: EventData): Promise<void> {
   try {
-    if (event.event === "Staked") {
-      await jober.addJob(event.returnValues.staker)
-    } else if (event.event === "Unstaked") {
-      await jober.removeJob(event.returnValues.staker)
-    }
-    MailEvent({ event: event.event, hash: event.transactionHash, address: getAssociatedAddress(event), params: event.returnValues })
+    // if (event.event === "Staked") {
+    //   await jober.addJob(event.returnValues.staker)
+    // } else if (event.event === "Unstaked") {
+    //   await jober.removeJob(event.returnValues.staker)
+    // }
+    // MailEvent({ event: event.event, hash: event.transactionHash, address: getAssociatedAddress(event), params: event.returnValues })
   }
   catch (e) {
     console.log(e);
@@ -185,13 +185,13 @@ async function EventHandler(event: EventData): Promise<void> {
 
 // ** Executions Start  
 
-sync()
-watch()
-updateContractData()
+// sync()
+// watch()
+// updateContractData()
 
-jober.syncJobs().then(() => {
-  console.log(jober.getAllJobs());
-})
+// jober.syncJobs().then(() => {
+//   console.log(jober.getAllJobs());
+// })
 
 export const UpdateContractData = updateContractData;
 
