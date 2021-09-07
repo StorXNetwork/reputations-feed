@@ -42,9 +42,10 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
     const ret_data = [];
     for (let address of addresses) {
         const geo_data = geoIp.lookup(address.ip.split(",")[0]);
+        const xdc_address = address.paymentAddress ? address.paymentAddress : contactToAddress[address._id]
         ret_data.push({
-            repuation: address.reputation,
-            xdc_address: address.paymentAddress ? address.paymentAddress : contactToAddress[address._id],
+            reptuation: stakeHolders&&stakeHolders[fromXdcAddress(xdc_address).toLowerCase()].reputation,
+            xdc_address: xdc_address,
             coordinates: geo_data?.ll,
             geo_data,
         })
@@ -72,7 +73,7 @@ export const GetSingleNodeCoordinates = async (req: express.Request, res: expres
     const geo_data = geoIp.lookup(contact.ip.split(",")[0]);
     res.json({
         status: 200, data: {
-            repuation: contact.reputation,
+            reptuation: reducedStakeholders[xdcwallet].reputation,
             xdc_address: toXdcAddress(xdcwallet),
             coordinates: geo_data?.ll,
             geo_data,

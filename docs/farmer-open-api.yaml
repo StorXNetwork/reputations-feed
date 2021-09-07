@@ -352,7 +352,7 @@ components:
               description: SRX token address
             iRepF:
               type: string
-              description: current repuation feed smart contract
+              description: current reptuation feed smart contract
             reputationThreshold:
               type: number
             hostingCompensation:
