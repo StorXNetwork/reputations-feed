@@ -92,7 +92,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     contractData && await contractData.markModified("stakeHolders");
     contractData && await contractData.save();
 
-    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x]).sort((a, b) => b.reputation-a.reputation);
+    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x]).sort((a, b) => a.reputation-b.reputation);
 
     /**
      * 
@@ -126,7 +126,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         const added = await AddStaker(wallet as string, reputation);
         if (added === null) return false;
       } else {
-        global.logger.info("sync: updating", address);
+        global.logger.info("sync: updating", address ,wallet , reputation);
         const updated = await UpdateAddresReputation(
           wallet as string,
           reputation
