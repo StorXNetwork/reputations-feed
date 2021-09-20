@@ -187,7 +187,7 @@ async function EventHandler(event: EventData): Promise<void> {
 
 // sync()
 // watch()
-// updateContractData()
+updateContractData()
 
 // jober.syncJobs().then(() => {
 //   console.log(jober.getAllJobs());
