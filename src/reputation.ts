@@ -34,9 +34,9 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     const stakers = (await Contact.find({ reputation: { $gt: minRep } }).sort({ reputation: 1 }).lean());
 
     const dbStakerAddress: string[] = [];
-    const staker_address_map: { [key: string]: string } = { }
+    const staker_address_map: { [key: string]: string } = {}
 
-    const address_to_contact: { [key: string]: Contact } = { }
+    const address_to_contact: { [key: string]: Contact } = {}
 
     const stakerLength = stakers.length;
 
@@ -92,7 +92,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     contractData && await contractData.markModified("stakeHolders");
     contractData && await contractData.save();
 
-    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x]).sort((a, b) => a.reputation-b.reputation);
+    const filteredStakers = Object.keys(address_to_contact).map((x: string): Contact => address_to_contact[x]).sort((a, b) => a.reputation - b.reputation);
 
     /**
      * 
@@ -114,24 +114,33 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
     for (let staker of filteredStakers) {
-      const { address, reputation, _id } = staker;
-      const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
-
-      const exists = existingStaker.data.includes(wallet)
-
-      global.logger.debug("checking sync for address", wallet, exists)
-
-      if (!exists) {
-        global.logger.info("sync: adding", address, wallet);
-        const added = await AddStaker(wallet as string, reputation);
-        if (added === null) return false;
-      } else {
-        global.logger.info("sync: updating", address ,wallet , reputation);
-        const updated = await UpdateAddresReputation(
-          wallet as string,
-          reputation
-        );
-        if (updated === null) return false;
+      try {
+        const { address, reputation, _id } = staker;
+        const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
+        const exists = existingStaker.data.includes(wallet)
+        global.logger.debug("checking sync for address", wallet, exists)
+        if (!exists) {
+          global.logger.info("sync: adding", address, wallet);
+          const added = await AddStaker(wallet as string, reputation);
+          if (added === null) {
+            global.logger.debug("error in sync stakers for staker", wallet, "while adding");
+            continue;
+          };
+        } else {
+          global.logger.info("sync: updating", address, wallet, reputation);
+          const updated = await UpdateAddresReputation(
+            wallet as string,
+            reputation
+          );
+          if (updated === null) {
+            global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+            continue;
+          };
+        }
+      }
+      catch (e) {
+        global.logger.debug("error in sync stakers for staker", staker, e)
+        continue;
       }
     }
 
