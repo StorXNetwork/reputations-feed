@@ -24,7 +24,7 @@ export const GeneralContractMethodView = (
 ): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+      const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
       const contract = new xdc3.eth.Contract(
         ABI as AbiItem[],
         REPUTATION_CONTRACT_ADDRESS
@@ -46,7 +46,7 @@ export const GeneralContractMethod = (
     try {
       console.log("method, params", method, params);
 
-      const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+      const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
       const contract = new xdc3.eth.Contract(
         ABI as AbiItem[],
         REPUTATION_CONTRACT_ADDRESS
@@ -83,7 +83,7 @@ export const GeneralContractMethod = (
 export const GetAddressReputation = async (
   address: string
 ): Promise<number> => {
-  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   return await contract.methods.getReputation(address).call();
 };
@@ -92,7 +92,7 @@ export const UpdateAddresReputation = async (
   address: string,
   reputation: number
 ): Promise<boolean> => {
-  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   const currentReputation = await contract.methods.getReputation(address).call()
   global.logger.debug("reputation change for", address, "-> current:", currentReputation, "updated:", reputation, "are equal:", currentReputation == reputation);
