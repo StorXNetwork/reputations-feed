@@ -123,7 +123,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
       try {
         const { address, reputation, _id } = staker;
         const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
-        const stakedAmount = stakeHolders[wallet].stakedAmount as string;
+        const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
         const exists = existingStaker.data.includes(wallet)
         global.logger.debug("checking sync for address", wallet, exists)
 
