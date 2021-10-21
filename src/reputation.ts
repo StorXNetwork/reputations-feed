@@ -114,7 +114,10 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
 
-    const stakeHolders = contractData.stakeHolders as any;
+    let stakeHolders:any = {}
+    if (contractData) {
+      stakeHolders = (contractData).stakeHolders as any;
+    }
     
     for (let staker of filteredStakers) {
       try {
