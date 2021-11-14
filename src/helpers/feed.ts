@@ -114,7 +114,7 @@ export const UpdateAddresReputation = async (
     ACCOUNT.privateKey
   );
 
-  await xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
+  xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
   return true;
 };
 
