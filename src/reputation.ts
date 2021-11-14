@@ -127,17 +127,17 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         const exists = existingStaker.data.includes(wallet)
         global.logger.debug("checking sync for address", wallet, exists)
 
-        if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
-          global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
-          const updated = await UpdateAddresReputation(
-            wallet as string,
-            0
-          );
-          if (updated === null) {
-            global.logger.debug("error in sync stakers for staker", wallet, "while updated");
-          };
-          continue;
-        }
+        // if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
+        //   global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
+        //   const updated = await UpdateAddresReputation(
+        //     wallet as string,
+        //     0
+        //   );
+        //   if (updated === null) {
+        //     global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+        //   };
+        //   continue;
+        // }
 
         if (!exists) {
           global.logger.info("sync: adding", address, wallet);
