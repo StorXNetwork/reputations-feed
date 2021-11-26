@@ -55,8 +55,8 @@ setInterval(() => {
 const run = async () =>
   SyncStakers()
     .then((status) => global.logger.info("sync status", status))
-    .then(UpdateContractData)
-    .then(() => console.log("updated contract config"))
+    .finally(UpdateContractData)
+    // .then(() => console.log("updated contract config"))
     .catch(console.log);
 
 

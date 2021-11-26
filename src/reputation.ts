@@ -118,6 +118,8 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     if (contractData) {
       stakeHolders = (contractData).stakeHolders as any;
     }
+
+    let counter = 0;
     
     for (let staker of filteredStakers) {
       try {
@@ -138,7 +140,11 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         //   };
         //   continue;
         // }
-
+        counter = counter + 1;
+        if(counter >= 100){
+          sleep(2000);
+          counter = 0;
+        }
         if (!exists) {
           global.logger.info("sync: adding", address, wallet);
           const added = await AddStaker(wallet as string, reputation);
@@ -188,6 +194,15 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     // logger.error(e)
     return false;
   }
+}
+
+function sleep(milliseconds: any) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+  console.log("Waited 2 Seconds")
 }
 
 /**
