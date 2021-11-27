@@ -106,8 +106,10 @@ export const UpdateAddresReputation = async (
     from: ACCOUNT.address,
   };
 
+  const nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
   const gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
+  tx["nonce"] = "0x" + nonceCount.toString(16)
 
   const signed = await xdc3.eth.accounts.signTransaction(
     tx,
