@@ -128,9 +128,25 @@ async function updateContractData() {
       modelAttr[ContractDataMethod[i]] = data[i]
     }
 
+    let counterRep = 0
+    const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
+      counterRep = counterRep + 1;
+      if(counterRep >= 100){
+        sleep(2000);
+        counterRep = 0
+      }
+      reputationContract.methods.reputations(fromXdcAddress(x)).call()
+    }))
 
-    const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => reputationContract.methods.reputations(fromXdcAddress(x)).call()))
-    const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => stakingContract.methods.stakes(fromXdcAddress(x)).call()))
+    let counterStake = 0
+    const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
+      counterStake = counterStake + 1;
+      if(counterStake >= 100){
+        sleep(2000);
+        counterStake = 0
+      }
+      stakingContract.methods.stakes(fromXdcAddress(x)).call()
+    }))
 
     // const stakeHolderData = await Promise.all(modelAttr.stakeHolders.map((x: string) => Mirror.findOne({ 'contract.payment_destination': { $regex: new RegExp(toXdcAddress(x) as string, "i") } })))
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
@@ -144,12 +160,12 @@ async function updateContractData() {
       return acc
     }, { })
 
-    if (exists) {
-      Object.assign(exists, modelAttr);
-      await exists.save()
-    } else {
+    // if (exists) {
+    //   Object.assign(exists, modelAttr);
+    //   await exists.save()
+    // } else {
       await ContractData.build(modelAttr).save()
-    }
+    // }
     console.log("contract config updated");
   }
   catch (e) {
@@ -212,4 +228,12 @@ function getAssociatedAddress(event: EventData) {
   }
 }
 
+function sleep(milliseconds: any) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+  console.log("Waited 2 Seconds")
+}
 
