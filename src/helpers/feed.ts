@@ -117,10 +117,10 @@ export const UpdateAddresReputation = async (
     to: REPUTATION_CONTRACT_ADDRESS,
     from: ACCOUNT.address,
   };
-  sleep(4000);
+  sleep(2000);
 
   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
-  console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)
+  console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount} and with ToString ${nonceCount.toString(16)}`)
   const gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
   tx["nonce"] = "0x" + nonceCount.toString(16)
