@@ -57,9 +57,11 @@ export const GeneralContractMethod = (
         to: REPUTATION_CONTRACT_ADDRESS,
         from: ACCOUNT.address,
       };
-
+      let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
       const gasLimit = await xdc3.eth.estimateGas(tx);
       tx["gasLimit"] = toHex(gasLimit);
+      tx["nonce"] = "0x" + nonceCount.toString(16)
+      console.log(`GeneralContractMethod Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)
 
       const signed = await xdc3.eth.accounts.signTransaction(
         tx,
@@ -106,7 +108,8 @@ export const UpdateAddresReputation = async (
     from: ACCOUNT.address,
   };
 
-  const nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+  let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+  console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)
   const gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
   tx["nonce"] = "0x" + nonceCount.toString(16)
