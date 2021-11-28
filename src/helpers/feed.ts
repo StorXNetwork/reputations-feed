@@ -13,6 +13,15 @@ const XdcObject = new ReconnectableXdc3(NETWORK.ws);
 //   XdcObject.disconnect()
 // }, 10000)
 
+function sleep(milliseconds: any) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+  console.log("Sleep 2 Seconds Before Each Transaction")
+}
+
 setInterval(async () => {
   const status = await XdcObject.status;
   global.logger.debug("status-xdc3:feed::", status);
@@ -94,6 +103,7 @@ export const UpdateAddresReputation = async (
   address: string,
   reputation: number
 ): Promise<boolean> => {
+
   const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   const currentReputation = await contract.methods.getReputation(address).call()
@@ -107,6 +117,7 @@ export const UpdateAddresReputation = async (
     to: REPUTATION_CONTRACT_ADDRESS,
     from: ACCOUNT.address,
   };
+  sleep(4000);
 
   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
   console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)

@@ -127,7 +127,7 @@ async function updateContractData() {
     for (let i = 0; i < data.length; i++) {
       modelAttr[ContractDataMethod[i]] = data[i]
     }
-
+console.log(` Start stakeholderRep 1`)
     let counterRep = 0
     const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
       counterRep = counterRep + 1;
@@ -137,7 +137,8 @@ async function updateContractData() {
       }
       return reputationContract.methods.reputations(fromXdcAddress(x)).call()
     }))
-
+    console.log(` End stakeholderRep 1`)
+console.log(`Start stakeholderStake 2`)
     let counterStake = 0
     const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
       counterStake = counterStake + 1;
@@ -147,6 +148,7 @@ async function updateContractData() {
       }
       return stakingContract.methods.stakes(fromXdcAddress(x)).call()
     }))
+    console.log(`End stakeholderStake 2`)
 
     // const stakeHolderData = await Promise.all(modelAttr.stakeHolders.map((x: string) => Mirror.findOne({ 'contract.payment_destination': { $regex: new RegExp(toXdcAddress(x) as string, "i") } })))
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
