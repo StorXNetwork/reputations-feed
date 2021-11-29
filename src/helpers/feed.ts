@@ -117,7 +117,7 @@ export const UpdateAddresReputation = async (
     to: REPUTATION_CONTRACT_ADDRESS,
     from: ACCOUNT.address,
   };
-  sleep(2000);
+  sleep(3000);
 
   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
   console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount} and with ToString ${nonceCount.toString(16)}`)
