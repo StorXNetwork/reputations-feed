@@ -19,8 +19,8 @@ export const RemoveStaker = async (req: express.Request, res: express.Response):
 }
 
 export const UpdateReputation = async (req: express.Request, res: express.Response): Promise<void> => {
-  const { staker, reputation }: { staker: string, reputation: number } = req.body;
-  const resp = await Feed.UpdateAddresReputation(staker, reputation);
+  const { staker, reputation, nonceCount }: { staker: string, reputation: number, nonceCount:number } = req.body;
+  const resp = await Feed.UpdateAddresReputation(staker, reputation,nonceCount);
   if (!resp)
     throw new Error("error at controller UpdateReputation")
   res.status(200).json({ status: 200, message: "staker reputation updated" })

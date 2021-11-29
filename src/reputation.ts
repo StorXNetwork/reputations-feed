@@ -5,6 +5,9 @@ import {
   RemoveStaker,
 } from "./helpers/feed";
 import utils from "xdc3-utils";
+import Xdc3 from "xdc3";
+import { NETWORK, REPUTATION_CONTRACT_ADDRESS, ACCOUNT } from './config';
+
 import { Contact } from "./models/contact";
 import { Mirror } from "./models/mirror"
 import { fromXdcAddress } from 'xdc3-utils';
@@ -38,7 +41,8 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     const address_to_contact: { [key: string]: Contact } = {}
 
-    const stakerLength = stakers.length;
+    //const stakerLength = stakers.length;
+    const stakerLength = 50
 
     const contractData = await ContractData.findOne();
     console.log(`Current Stakers Length ${stakerLength}`)
@@ -88,7 +92,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         staker_address_map[_id] = wallet;
       }
     }
-
+console.log("end of first loop")
     contractData && await contractData.markModified("stakeHolders");
     contractData && await contractData.save();
 
@@ -120,7 +124,10 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     }
 
     let counter = 0;
-    
+       // get txCount here 
+       const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+       let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address);
+       console.log(`Currennt Nonce ${nonceCount}`)
     for (let staker of filteredStakers) {
       try {
         const { address, reputation, _id } = staker;
@@ -153,16 +160,24 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
             continue;
           };
         } else {
-          global.logger.info("sync: updating", address, wallet, reputation);
+          counter = counter + 1;
+          if(counter >= 10){
+            sleep(2000);
+            counter = 0;
+          }
+          global.logger.info("sync: updating", address, wallet, reputation,nonceCount);
           const updated = await UpdateAddresReputation(
             wallet as string,
-            reputation
+            reputation,
+            nonceCount
           );
           if (updated === null) {
             global.logger.debug("error in sync stakers for staker", wallet, "while updated");
             continue;
           };
         }
+        nonceCount = nonceCount +1
+        // plus one here
       }
       catch (e) {
         global.logger.debug("error in sync stakers for staker", staker, e)

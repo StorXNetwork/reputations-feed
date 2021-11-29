@@ -101,10 +101,13 @@ export const GetAddressReputation = async (
 
 export const UpdateAddresReputation = async (
   address: string,
-  reputation: number
-): Promise<boolean> => {
+  reputation: number,
+  nonceCount:number
+):Promise<boolean> =>  {
 
   const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+  // const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   const currentReputation = await contract.methods.getReputation(address).call()
   global.logger.debug("reputation change for", address, "-> current:", currentReputation, "updated:", reputation, "are equal:", currentReputation == reputation);
@@ -118,8 +121,7 @@ export const UpdateAddresReputation = async (
     from: ACCOUNT.address,
   };
   sleep(3000);
-
-  let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+  // let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
   console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount} and with ToString ${nonceCount.toString(16)}`)
   const gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
