@@ -99,6 +99,8 @@ export const GetAddressReputation = async (
   return await contract.methods.getReputation(address).call();
 };
 
+let counterArr : any = [];
+
 export const UpdateAddresReputation = async (
   address: string,
   reputation: number,
@@ -125,14 +127,20 @@ export const UpdateAddresReputation = async (
   console.log(`UpdateAddresReputation Current Address ${ACCOUNT.address} and Nonce ${nonceCount} and with ToString ${nonceCount.toString(16)}`)
   const gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
-  tx["nonce"] = "0x" + nonceCount.toString(16)
+  tx["nonce"] = "0x" + nonceCount.toString(16);
 
-  const signed = await xdc3.eth.accounts.signTransaction(
-    tx,
-    ACCOUNT.privateKey
-  );
+  counterArr.push(tx);
 
-  xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
+  if(counterArr.length % 100 === 0){
+    counterArr.forEach(async (item: any) => {
+      const signed = await xdc3.eth.accounts.signTransaction(
+        item,
+        ACCOUNT.privateKey
+      );
+    
+      xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
+    })
+  }
   return true;
 };
 
