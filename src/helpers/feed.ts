@@ -106,12 +106,13 @@ export const UpdateAddresReputation = async (
 ):Promise<boolean> =>  {
   let counterArr : any = [];
   let signTxH : any = [];
+  const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
 
+  let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
 
   console.log(filteredStakers.length,'filteredStakers')
-  for(let i=0;i<200;i++){
+  for(let i=0;i<filteredStakers.length;i++){
 
-  const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
   // const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
 
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
@@ -121,7 +122,7 @@ export const UpdateAddresReputation = async (
   // if (currentReputation == filteredStakers[i].reputation) {
   //   global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); return true
   // }
-
+  console.log(`Sr :- ${i}/${filteredStakers.length} Current Add :- ${filteredStakers[i].paymentAddress} Rep :- ${filteredStakers[i].reputation} `)
   let data = contract.methods.setReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress), filteredStakers[i].reputation).encodeABI();
 
   let tx: any = {
@@ -131,10 +132,9 @@ export const UpdateAddresReputation = async (
   };
 
   // sleep(3000);
-  // let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
   let gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
-  // tx["nonce"] = "0x" + nonceCount.toString(16);
+  tx["nonce"] = "0x" + nonceCount.toString(16);;
 
   // counterArr.push(tx);
   // console.log(counterArr.length,'counterArr')
@@ -146,11 +146,14 @@ export const UpdateAddresReputation = async (
         ACCOUNT.privateKey
       );
       signTxH.push(signed)
-      var receipt = await xdc3.eth.sendSignedTransaction(signTxH[i].rawTransaction,(error, txHash)  =>{
+        // sleep(2000);
+
+      let recipet = await xdc3.eth.sendSignedTransaction(signTxH[i].rawTransaction,(error, txHash)  =>{
         if (error) throw error;
         console.log(`txHash :- ${txHash}  `)
 
     });
+    nonceCount = nonceCount+1
       // xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
     // })
     // counterArr = []
