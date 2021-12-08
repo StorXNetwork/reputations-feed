@@ -112,7 +112,7 @@ export const UpdateAddresReputation = async (
 
   console.log(filteredStakers.length,'filteredStakers')
   for(let i=0;i<filteredStakers.length;i++){
-
+if (filteredStakers[i].paymentAddress){
   // const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
 
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
@@ -158,6 +158,9 @@ export const UpdateAddresReputation = async (
     // })
     // counterArr = []
   // }
+}else{
+  console.log('print value', filteredStakers[i])
+}
 }
   return true;
 };
