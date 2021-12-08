@@ -41,7 +41,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     const address_to_contact: { [key: string]: Contact } = {}
 
-    //const stakerLength = stakers.length;
+    // const stakerLength = stakers.length;
     const stakerLength = 50
 
     const contractData = await ContractData.findOne();
@@ -118,7 +118,7 @@ console.log("end of first loop")
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
 
-    let stakeHolders:any = {}
+    let stakeHolders = {}
     if (contractData) {
       stakeHolders = (contractData).stakeHolders as any;
     }
@@ -128,62 +128,65 @@ console.log("end of first loop")
        const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
        let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address);
        console.log(`Currennt Nonce ${nonceCount}`)
-    for (let staker of filteredStakers) {
-      try {
-        const { address, reputation, _id } = staker;
-        const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
-        const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
-        const exists = existingStaker.data.includes(wallet)
-        global.logger.debug("checking sync for address", wallet, exists)
+       const updated = await UpdateAddresReputation(
+        filteredStakers
+      );
+    // for (let staker of filteredStakers) {
+    //   try {
+    //     const { address, reputation, _id } = staker;
+    //     const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
+    //     const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
+    //     const exists = existingStaker.data.includes(wallet)
+    //     global.logger.debug("checking sync for address", wallet, exists)
 
-        // if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
-        //   global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
-        //   const updated = await UpdateAddresReputation(
-        //     wallet as string,
-        //     0
-        //   );
-        //   if (updated === null) {
-        //     global.logger.debug("error in sync stakers for staker", wallet, "while updated");
-        //   };
-        //   continue;
-        // }
-        counter = counter + 1;
-        if(counter >= 100){
-          sleep(2000);
-          counter = 0;
-        }
-        if (!exists) {
-          global.logger.info("sync: adding", address, wallet);
-          const added = await AddStaker(wallet as string, reputation);
-          if (added === null) {
-            global.logger.debug("error in sync stakers for staker", wallet, "while adding");
-            continue;
-          };
-        } else {
-          counter = counter + 1;
-          if(counter >= 10){
-            sleep(2000);
-            counter = 0;
-          }
-          global.logger.info("sync: updating", address, wallet, reputation,nonceCount);
-          const updated = await UpdateAddresReputation(
-            wallet as string,
-            reputation,
-            nonceCount
-          );
-          if (updated === null) {
-            global.logger.debug("error in sync stakers for staker", wallet, "while updated");
-            continue;
-          };
-        }
-        nonceCount = nonceCount +1
-        // plus one here
-      }
-      catch (e) {
-        global.logger.debug("error in sync stakers for staker", staker, e)
-        continue;
-      }
-    }
+    //     // if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
+    //     //   global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
+    //     //   const updated = await UpdateAddresReputation(
+    //     //     wallet as string,
+    //     //     0
+    //     //   );
+    //     //   if (updated === null) {
+    //     //     global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+    //     //   };
+    //     //   continue;
+    //     // }
+    //     counter = counter + 1;
+    //     if(counter >= 100){
+    //       sleep(2000);
+    //       counter = 0;
+    //     }
+    //     if (!exists) {
+    //       global.logger.info("sync: adding", address, wallet);
+    //       const added = await AddStaker(wallet as string, reputation);
+    //       if (added === null) {
+    //         global.logger.debug("error in sync stakers for staker", wallet, "while adding");
+    //         continue;
+    //       };
+    //     } else {
+    //       // counter = counter + 1;
+    //       // if(counter >= 10){
+    //       //   sleep(2000);
+    //       //   counter = 0;
+    //       // }
+    //       global.logger.info("sync: updating", address, wallet, reputation,nonceCount);
+    //       const updated = await UpdateAddresReputation(
+    //         wallet as string,
+    //         reputation,
+    //         nonceCount
+    //       );
+    //       if (updated === null) {
+    //         global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+    //         continue;
+    //       };
+    //     }
+    //     nonceCount = nonceCount +1
+    //     // plus one here
+    //   }
+    //   catch (e) {
+    //     global.logger.debug("error in sync stakers for staker", staker, e)
+    //     continue;
+    //   }
+    // }
 
     // const DEFAULT_REP = 200;
 
@@ -194,13 +197,13 @@ console.log("end of first loop")
     //   }
     // }
 
-    for (let staker of existingStaker.data) {
-      if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
-        global.logger.info("sync: removing", staker);
-        const removed = await RemoveStaker(staker);
-        if (removed === null) return false;
-      }
-    }
+    // for (let staker of existingStaker.data) {
+    //   if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
+    //     global.logger.info("sync: removing", staker);
+    //     const removed = await RemoveStaker(staker);
+    //     if (removed === null) return false;
+    //   }
+    // }
 
     return true;
   } catch (e) {
