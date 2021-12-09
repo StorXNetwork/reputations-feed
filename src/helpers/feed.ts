@@ -1,4 +1,6 @@
 import Xdc3 from "xdc3";
+import web3 from "web3";
+
 import { AbiItem, toHex, hexToNumber } from "xdc3-utils";
 import { TransactionReceipt } from "xdc3-core";
 import utils from "xdc3-utils";
@@ -13,15 +15,17 @@ const XdcObject = new ReconnectableXdc3(NETWORK.ws);
 // setTimeout(() => {
 //   XdcObject.disconnect()
 // }, 10000)
+let sleep = (time) => new Promise((resolve) => setTimeout(resolve, time))
 
-function sleep(milliseconds: any) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-  console.log("Sleep 2 Seconds Before Each Transaction")
-}
+
+// function sleep(milliseconds: any) {
+//   const date = Date.now();
+//   let currentDate = null;
+//   do {
+//     currentDate = Date.now();
+//   } while (currentDate - date < milliseconds);
+//   console.log("Sleep 2 Seconds Before Each Transaction")
+// }
 
 setInterval(async () => {
   const status = await XdcObject.status;
@@ -100,14 +104,50 @@ export const GetAddressReputation = async (
   return await contract.methods.getReputation(address).call();
 };
 
-
+export const send = function (obj)  {
+  // console.log(obj,'obj')
+  
+  const xdc3 = new web3(new web3.providers.HttpProvider(NETWORK.erpc));
+  const account = xdc3.eth.accounts.privateKeyToAccount(ACCOUNT.privateKey)
+  let coinbase = utils.fromXdcAddress(ACCOUNT.address)
+  xdc3.eth.accounts.wallet.add(ACCOUNT)
+  xdc3.eth.defaultAccount = '0xe50d5fc9bcbce037a19c860ba4105548d42517a0'
+  return new Promise((resolve, reject) => {
+    xdc3.eth.sendTransaction({
+          nonce: obj.nonce,
+          data:obj.data,
+          from: obj.from,
+          to: obj.to,
+          value: obj.value,
+          gasLimit: obj.gasLimit,
+          gasPrice: obj.gasPrice,
+      }, function (err, hash) {
+          if (err) {
+              console.error(`Send error ${obj.to} nonce ${obj.nonce}`)
+              console.error(String(err))
+              console.error('Sleep 2 seconds and resend until done')
+              return sleep(2000).then(() => {
+                  return resolve(send(obj))
+              })
+          } else {
+              console.info('Done %s %s %s %s', obj.to, hash, 'nonce', obj.nonce)
+              return resolve()
+              return false
+          }
+      }).catch(e => { console.error(e) })
+  })
+}
 export const UpdateAddresReputation = async (
   filteredStakers: any
 ):Promise<boolean> =>  {
   let counterArr : any = [];
   let signTxH : any = [];
   const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
-
+  // const account = xdc3.eth.accounts.privateKeyToAccount(ACCOUNT.privateKey)
+  // let coinbase = utils.fromXdcAddress(ACCOUNT.address)
+  // console.log(coinbase,ACCOUNT.address,account,'accountaccountaccountaccount')
+  // xdc3.eth.accounts.wallet.add(ACCOUNT)
+  // xdc3.eth.defaultAccount = '0xe50d5fc9bcbce037a19c860ba4105548d42517a0'
   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
 
   console.log(filteredStakers.length,'filteredStakers')
@@ -135,25 +175,26 @@ if (filteredStakers[i].paymentAddress){
   let gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = toHex(gasLimit);
   tx["nonce"] = "0x" + nonceCount.toString(16);;
-
+  await send(tx)
+  nonceCount =nonceCount+1
   // counterArr.push(tx);
   // console.log(counterArr.length,'counterArr')
 
   // if(counterArr.length % 10 === 0){
     // counterArr.forEach(async (item: any) => {
-      const signed = await xdc3.eth.accounts.signTransaction(
-        tx,
-        ACCOUNT.privateKey
-      );
-      signTxH.push(signed)
-        // sleep(2000);
+            //   const signed = await xdc3.eth.accounts.signTransaction(
+            //     tx,
+            //     ACCOUNT.privateKey
+            //   );
+            //   signTxH.push(signed)
+            //     // sleep(2000);
 
-      let recipet = await xdc3.eth.sendSignedTransaction(signTxH[i].rawTransaction,(error, txHash)  =>{
-        if (error) throw error;
-        console.log(`txHash :- ${txHash}  `)
+            //   let recipet = await xdc3.eth.sendSignedTransaction(signTxH[i].rawTransaction,(error, txHash)  =>{
+            //     if (error) throw error;
+            //     console.log(`txHash :- ${txHash}  `)
 
-    });
-    nonceCount = nonceCount+1
+            // });
+    // nonceCount = nonceCount+1
       // xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
     // })
     // counterArr = []
