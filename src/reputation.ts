@@ -127,7 +127,7 @@ console.log("end of first loop")
     let counter = 0;
        // get txCount here 
        const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
-       let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address);
+       let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
        console.log(`Currennt Nonce ${nonceCount}`)
 
     for (let staker of filteredStakers) {
@@ -151,17 +151,26 @@ console.log("end of first loop")
         //   continue;
         // }
         if (!exists) {
-        stakeArr.push({wallet,reputation})
-        
-        // console.log(stakeArr,'stakeArrstakeArr before ip')
-        if (stakeArr.length % 5 === 0){
-          console.log(stakeArr.length,'stakeArr.length')
-        const added = await AddStaker(stakeArr);
-        stakeArr=[]
-        }else{
-          console.log(stakeArr.length,'stakeArr')
+          global.logger.info("sync: adding", address, wallet);
+          const added = await AddStaker(wallet as string, reputation);
+          if (added === null) {
+            global.logger.debug("error in sync stakers for staker", wallet, "while adding");
+            continue;
+          };
         }
-      }
+    //   if (!exists) {
+    //   stakeArr.push({wallet,reputation,nonceCount})
+      
+    //   // console.log(stakeArr,'stakeArrstakeArr before ip')
+    //   if (stakeArr.length % 5 === 0){
+    //     console.log(stakeArr.length,'stakeArr.length')
+    //   const added = await AddStaker(stakeArr);
+    //   stakeArr=[]
+    //   }else{
+    //     console.log(stakeArr.length,'stakeArr',nonceCount,'nonceCount')
+    //     nonceCount = nonceCount+1
+    //   }
+    // }
         // const added = await AddStaker(filteredStakers);
         // if (added === null) {
         //   global.logger.debug("error in sync stakers for staker", wallet, "while adding");
@@ -189,7 +198,7 @@ console.log("end of first loop")
           //   continue;
           // };
         // }
-        nonceCount = nonceCount +1
+
         // plus one here
       }
       catch (e) {

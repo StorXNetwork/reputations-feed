@@ -72,12 +72,59 @@ export const GeneralContractMethod = (
         from: ACCOUNT.address,
       };
       let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
-      // const gasLimit = "98558363"
       const gasLimit = await xdc3.eth.estimateGas(tx);
       tx["gasLimit"] = toHex(gasLimit);
       tx["nonce"] = "0x" + nonceCount.toString(16)
       console.log(`GeneralContractMethod Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)
 
+      const signed = await xdc3.eth.accounts.signTransaction(
+        tx,
+        ACCOUNT.privateKey
+      );
+
+      xdc3.eth
+        .sendSignedTransaction(signed.rawTransaction as string)
+        .once("receipt", (receipt) => resolve(receipt))
+        .catch((e) => {
+          // console.trace(e);
+          reject(e);
+        });
+    } catch (e) {
+      // console.trace(e);
+      reject(e);
+    }
+  });
+};
+
+export const GeneralContractMethod11 = async (
+  method: string,
+  params: (string | number)[] = [],
+  nonceCount:string
+  ): Promise<void> => {
+  // return new Promise(async (resolve, reject) => {
+    try {
+      console.log("method, params", method, params);
+
+      const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+      const contract = new xdc3.eth.Contract(
+        ABI as AbiItem[],
+        REPUTATION_CONTRACT_ADDRESS
+      );
+      const data = contract.methods[method](...params).encodeABI();
+      const tx: any = {
+        data,
+        to: REPUTATION_CONTRACT_ADDRESS,
+        from: ACCOUNT.address,
+      };
+      // let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+      // const gasLimit = "98558363"
+      const gasLimit = await xdc3.eth.estimateGas(tx);
+      tx["gasLimit"] = toHex(gasLimit);
+      tx["nonce"] =   nonceCount
+      console.log(`GeneralContractMethod Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)
+      // await sleep(4000)
+      await send(tx)
+      nonceCount =nonceCount+1
       // const signed = await xdc3.eth.accounts.signTransaction(
       //   tx,
       //   ACCOUNT.privateKey
@@ -85,15 +132,15 @@ export const GeneralContractMethod = (
 
       // nonceCount =nonceCount+1
 
-          send(tx).finally().catch((e) => {
-            // console.trace(e);
+      //     send(tx).finally().catch((e) => {
+      //       // console.trace(e);
 
-            reject(e);
-          });
-      } catch (e) {
-        // console.trace(e);
-        reject(e);
-      }
+      //       reject(e);
+      //     });
+      // } catch (e) {
+      //   // console.trace(e);
+      //   reject(e);
+      // }
       // nonceCount =nonceCount+1
     // return txhash;
 
@@ -108,7 +155,10 @@ export const GeneralContractMethod = (
     //   // console.trace(e);
     //   reject(e);
     // }
-  });
+  // });
+} catch (e) {
+  console.trace(e);
+}
 };
 
 export const GetAddressReputation = async (
@@ -141,6 +191,7 @@ export const send = function (obj)  {
               console.error(`Send error ${obj.to} nonce ${obj.nonce}`)
               console.error(String(err))
               console.error('Sleep 2 seconds and resend until done')
+              // obj.nonce=obj.nonce+1;
               return sleep(2000).then(() => {
                   return resolve(send(obj))
               })
@@ -222,21 +273,35 @@ if (filteredStakers[i].paymentAddress){
 };
 
 export const AddStaker = async (
+  address: string,
+  reputation: number
+): Promise<boolean> => {
+  try {
+    const receipt = await GeneralContractMethod("addStaker", [
+      address,
+      reputation,
+    ]);
+    if (receipt === null) return false;
+    return true;
+  } catch (e) {
+    // console.trace(e);
+    return false;
+  }
+};
+export const AddStaker11 = async (
   stakeArr: any
   // address: string,
   // reputation: number
 ): Promise<boolean> => {
-// console.log(stakeArr,'filteredStakers')
+console.log(stakeArr,'filteredStakers')
   try {
     for(let i=0;i<stakeArr.length;i++){
 
     const receipt = await GeneralContractMethod("addStaker", [
-      // utils.fromXdcAddress(stakeArr[i].paymentAddress),
       stakeArr[i].wallet,
-      stakeArr[i].reputation
-      // address,
-      // reputation,
-    ]);
+      stakeArr[i].reputation,
+    ]
+    );
     if (receipt === null) return false;
     return true;
   }
