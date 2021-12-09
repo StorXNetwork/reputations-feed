@@ -119,6 +119,7 @@ console.log("end of first loop")
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
 
     let stakeHolders = {}
+    let stakeArr: any[] = [];
     if (contractData) {
       stakeHolders = (contractData).stakeHolders as any;
     }
@@ -128,65 +129,77 @@ console.log("end of first loop")
        const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
        let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address);
        console.log(`Currennt Nonce ${nonceCount}`)
-       const updated = await UpdateAddresReputation(
-        filteredStakers
-      );
-    // for (let staker of filteredStakers) {
-    //   try {
-    //     const { address, reputation, _id } = staker;
-    //     const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
-    //     const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
-    //     const exists = existingStaker.data.includes(wallet)
-    //     global.logger.debug("checking sync for address", wallet, exists)
 
-    //     // if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
-    //     //   global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
-    //     //   const updated = await UpdateAddresReputation(
-    //     //     wallet as string,
-    //     //     0
-    //     //   );
-    //     //   if (updated === null) {
-    //     //     global.logger.debug("error in sync stakers for staker", wallet, "while updated");
-    //     //   };
-    //     //   continue;
-    //     // }
-    //     counter = counter + 1;
-    //     if(counter >= 100){
-    //       sleep(2000);
-    //       counter = 0;
-    //     }
-    //     if (!exists) {
-    //       global.logger.info("sync: adding", address, wallet);
-    //       const added = await AddStaker(wallet as string, reputation);
-    //       if (added === null) {
-    //         global.logger.debug("error in sync stakers for staker", wallet, "while adding");
-    //         continue;
-    //       };
-    //     } else {
-    //       // counter = counter + 1;
-    //       // if(counter >= 10){
-    //       //   sleep(2000);
-    //       //   counter = 0;
-    //       // }
-    //       global.logger.info("sync: updating", address, wallet, reputation,nonceCount);
-    //       const updated = await UpdateAddresReputation(
-    //         wallet as string,
-    //         reputation,
-    //         nonceCount
-    //       );
-    //       if (updated === null) {
-    //         global.logger.debug("error in sync stakers for staker", wallet, "while updated");
-    //         continue;
-    //       };
-    //     }
-    //     nonceCount = nonceCount +1
-    //     // plus one here
-    //   }
-    //   catch (e) {
-    //     global.logger.debug("error in sync stakers for staker", staker, e)
-    //     continue;
-    //   }
-    // }
+    for (let staker of filteredStakers) {
+      // console.log(staker_address_map,'staker_address_map')
+      try {
+        const { address, reputation, _id } = staker;
+        const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
+        // const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
+        const exists = existingStaker.data.includes(wallet)
+        global.logger.debug("checking sync for address", wallet, exists)
+
+        // if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
+        //   global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
+        //   const updated = await UpdateAddresReputation(
+        //     wallet as string,
+        //     0
+        //   );
+        //   if (updated === null) {
+        //     global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+        //   };
+        //   continue;
+        // }
+        if (!exists) {
+        stakeArr.push({wallet,reputation})
+        
+        // console.log(stakeArr,'stakeArrstakeArr before ip')
+        if (stakeArr.length % 5 === 0){
+          console.log(stakeArr.length,'stakeArr.length')
+        const added = await AddStaker(stakeArr);
+        stakeArr=[]
+        }else{
+          console.log(stakeArr.length,'stakeArr')
+        }
+      }
+        // const added = await AddStaker(filteredStakers);
+        // if (added === null) {
+        //   global.logger.debug("error in sync stakers for staker", wallet, "while adding");
+        //   // continue;
+        // };
+        // if (!exists) {
+        //   // global.logger.info("sync: adding", address, wallet);
+        //   const added = await AddStaker(filteredStakers);
+        //   if (added === null) {
+        //     global.logger.debug("error in sync stakers for staker", wallet, "while adding");
+        //     // continue;
+        //   };
+        // } else {
+          // counter = counter + 1;
+          // if(counter >= 10){
+          //   sleep(2000);
+          //   counter = 0;
+          // }
+          // global.logger.info("sync: updating", address, wallet, reputation,nonceCount);
+          // const updated = await UpdateAddresReputation(
+          //   filteredStakers
+          // );
+          // if (updated === null) {
+          //   global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+          //   continue;
+          // };
+        // }
+        nonceCount = nonceCount +1
+        // plus one here
+      }
+      catch (e) {
+        global.logger.debug("error in sync stakers for staker", e)
+        // continue;
+      }
+    }
+    const updated = await UpdateAddresReputation(
+      filteredStakers
+    );
 
     // const DEFAULT_REP = 200;
 
