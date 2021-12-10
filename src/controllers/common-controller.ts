@@ -31,9 +31,9 @@ export const GetAssetPrice = async (req: express.Request, res: express.Response)
 
 export const GetNodeCoordinates = async (req: express.Request, res: express.Response): Promise<void> => {
     const stakeHolders = (await ContractData.findOne({}))?.stakeHolders;
-    const stakeId = Object.keys(stakeHolders as any).map<string>((x: string) => stakeHolders?.[x as any].contact as string);
+    const stakeId = Object.keys(stakeHolders as any).map<string>((x: string) => stakeHolders?.[x as any]?.contact as string);
     const contactToAddress = Object.keys(stakeHolders as any).reduce((acc: any, cur: any): any => {
-        acc[stakeHolders?.[cur].contact as string] = cur;
+        acc[stakeHolders?.[cur]?.contact as string] = cur;
         return acc;
     }, {})
 
@@ -65,7 +65,7 @@ export const GetSingleNodeCoordinates = async (req: express.Request, res: expres
 
 
 
-    const stakeId = reducedStakeholders && reducedStakeholders[xdcwallet].contact
+    const stakeId = reducedStakeholders && reducedStakeholders[xdcwallet]?.contact
 
     const contact = await Contact.findOne({ _id: stakeId });
 
