@@ -172,9 +172,8 @@ export const GetAddressReputation = async (
 export const send = function (obj:any)  {
   // console.log(obj,'obj')
   
-  const xdc3 = new web3(new web3.providers.HttpProvider(NETWORK.erpc));
+  const xdc3 = new web3(new web3.providers.HttpProvider(NETWORK.rpc));
   const account = xdc3.eth.accounts.privateKeyToAccount(ACCOUNT.privateKey)
-  let coinbase = utils.fromXdcAddress(ACCOUNT.address)
   xdc3.eth.accounts.wallet.add(ACCOUNT)
   xdc3.eth.defaultAccount = '0xe50d5fc9bcbce037a19c860ba4105548d42517a0'
   return new Promise((resolve, reject) => {
