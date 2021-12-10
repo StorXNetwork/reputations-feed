@@ -15,7 +15,7 @@ const XdcObject = new ReconnectableXdc3(NETWORK.ws);
 // setTimeout(() => {
 //   XdcObject.disconnect()
 // }, 10000)
-let sleep = (time) => new Promise((resolve) => setTimeout(resolve, time))
+let sleep = (time:any) => new Promise((resolve) => setTimeout(resolve, time))
 
 
 // function sleep(milliseconds: any) {
@@ -169,7 +169,7 @@ export const GetAddressReputation = async (
   return await contract.methods.getReputation(address).call();
 };
 
-export const send = function (obj)  {
+export const send = function (obj:any)  {
   // console.log(obj,'obj')
   
   const xdc3 = new web3(new web3.providers.HttpProvider(NETWORK.erpc));
@@ -193,7 +193,12 @@ export const send = function (obj)  {
               console.error('Sleep 2 seconds and resend until done')
               // obj.nonce=obj.nonce+1;
               return sleep(2000).then(() => {
+                xdc3.eth.getTransactionCount(ACCOUNT.address,"pending").then((nonceCount:any)=>{
+                  console.log(`Nonce Error : Current :- ${obj.nonce} new Nonce :- ${nonceCount}`)
+                  obj.nonce=nonceCount;
                   return resolve(send(obj))
+
+                })
               })
           } else {
               console.info('Done %s %s %s %s', obj.to, hash, 'nonce', obj.nonce)
