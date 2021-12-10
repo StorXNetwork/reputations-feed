@@ -41,7 +41,7 @@ export const GetNodeCoordinates = async (req: express.Request, res: express.Resp
 
     const ret_data = [];
     for (let address of addresses) {
-        const geo_data = geoIp.lookup(address.ip.split(",")[0]);
+        const geo_data = geoIp.lookup(address?.ip?.split(",")[0]);
         const xdc_address = address.paymentAddress ? address.paymentAddress : contactToAddress[address._id]
         ret_data.push({
             reputation: stakeHolders?.[fromXdcAddress(xdc_address).toLowerCase()]?.reputation,
@@ -70,7 +70,7 @@ export const GetSingleNodeCoordinates = async (req: express.Request, res: expres
     const contact = await Contact.findOne({ _id: stakeId });
 
     if (!contact) throw new BadRequestError("address not found");
-    const geo_data = geoIp.lookup(contact.ip.split(",")[0]);
+    const geo_data = geoIp.lookup(contact?.ip?.split(",")[0]);
     res.json({
         status: 200, data: {
             reptuation: reducedStakeholders[xdcwallet].reputation,
