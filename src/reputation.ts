@@ -130,9 +130,10 @@ console.log("end of first loop")
         const exists = existingStaker.data.includes(wallet)
         global.logger.debug("checking sync for address", wallet, exists)
 
-
         if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
-          global.logger.info("sync: ban", address, wallet,stakedAmount, reputation, " rep. update to 0");
+          // console.log(reputation,'reputation')
+          // console.log(stakedAmount,'stakedAmount')
+          global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
           banAcc.push({paymentAddress:wallet,reputation:0})
           // const updated = await UpdateAddresReputation(
           //   banAcc
