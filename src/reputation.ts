@@ -47,14 +47,14 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     const contractData = await ContractData.findOne();
     console.log(`Current Stakers Length ${stakerLength}`)
     for (let i = 0; i < stakerLength; i++) {
-      const { _id } = stakers[i];
-      const contactData = await Contact.findOne({ _id: _id }).sort({ lastSeen: -1 });
+      // const { _id } = stakers[i];
+      const contactData = stakers[i];
 
       let wallet;
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
         if (contractData && contractData.stakeHolders[wallet]) {
-          contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
+          contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: stakers[i]._id }
         }
         global.logger.debug("SyncStakers: wallet - contact", wallet, `${i + 1} of ${stakerLength}`);
 
@@ -71,14 +71,14 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         if (currDate.getTime() > oldDate.getTime()) {
           // has better lastSeen, this will be considered as the latest contact for the wallet.
           address_to_contact[wallet] = { ...stakers[i] };
-          staker_address_map[_id] = wallet;
+          staker_address_map[stakers[i]._id] = wallet;
         }
 
       } else {
         address_to_contact[wallet] = { ...stakers[i] };
 
         dbStakerAddress.push(wallet)
-        staker_address_map[_id] = wallet;
+        staker_address_map[stakers[i]._id] = wallet;
       }
     }
 console.log("end of first loop")
