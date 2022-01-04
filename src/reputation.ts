@@ -41,8 +41,8 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     const address_to_contact: { [key: string]: Contact } = {}
 
-    // const stakerLength = stakers.length;
-    const stakerLength = 500
+    const stakerLength = stakers.length;
+    // const stakerLength = 500
 
     const contractData = await ContractData.findOne();
     console.log(`Current Stakers Length ${stakerLength}`)
