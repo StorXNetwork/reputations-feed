@@ -41,8 +41,8 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
 
     const address_to_contact: { [key: string]: Contact } = {}
 
-    const stakerLength = stakers.length;
-    // const stakerLength = 50
+    // const stakerLength = stakers.length;
+    const stakerLength = 500
 
     const contractData = await ContractData.findOne();
     console.log(`Current Stakers Length ${stakerLength}`)
@@ -59,18 +59,7 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
         global.logger.debug("SyncStakers: wallet - contact", wallet, `${i + 1} of ${stakerLength}`);
 
       } else {
-        const data = await Mirror.findOne({ contact: _id }).sort({ created: -1 }).lean();
-
-        if (data && data.contract && data.contract.payment_destination) {
-          wallet = fromXdcAddress(data?.contract.payment_destination as string).toLowerCase();
-          if (contractData && contractData.stakeHolders[wallet]) {
-            contractData.stakeHolders[wallet] = { ...contractData.stakeHolders[wallet], contact: _id }
-
-          }
-
-          global.logger.debug("SyncStakers: wallet - mirror", wallet, `${i + 1} of ${stakerLength}`);
-        }
-        else continue
+         continue
 
       }
 
