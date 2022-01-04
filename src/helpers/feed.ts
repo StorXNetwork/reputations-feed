@@ -54,7 +54,8 @@ export const GeneralContractMethodView = (
 
 export const GeneralContractMethod = (
   method: string,
-  params: (string | number)[] = []
+  params: (string | number)[] = [],
+  nonceCount:number
 ): Promise<TransactionReceipt> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -72,27 +73,30 @@ export const GeneralContractMethod = (
         from: ACCOUNT.address,
       };
       let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
-      const gasLimit = await xdc3.eth.estimateGas(tx);
+      // const gasLimit = await xdc3.eth.estimateGas(tx);
+      const gasLimit = '40000000'
       tx["gasLimit"] = toHex(gasLimit);
       tx["nonce"] = "0x" + nonceCount.toString(16)
       console.log(`GeneralContractMethod Current Address ${ACCOUNT.address} and Nonce ${nonceCount}`)
+      await send(tx)
+      resolve(true)
 
-      const signed = await xdc3.eth.accounts.signTransaction(
-        tx,
-        ACCOUNT.privateKey
-      );
+    //   const signed = await xdc3.eth.accounts.signTransaction(
+    //     tx,
+    //     ACCOUNT.privateKey
+    //   );
 
-      xdc3.eth
-        .sendSignedTransaction(signed.rawTransaction as string)
-        .once("receipt", (receipt) => resolve(receipt))
-        .catch((e) => {
-          // console.trace(e);
-          reject(e);
-        });
-    } catch (e) {
-      // console.trace(e);
-      reject(e);
-    }
+    //   xdc3.eth
+    //     .sendSignedTransaction(signed.rawTransaction as string)
+    //     .once("receipt", (receipt) => resolve(receipt))
+    //     .catch((e) => {
+    //       // console.trace(e);
+    //       reject(e);
+    //     });
+    // } catch (e) {
+    //   // console.trace(e);
+    //   reject(e);
+    // }
   });
 };
 
@@ -278,13 +282,14 @@ if (filteredStakers[i].paymentAddress){
 
 export const AddStaker = async (
   address: string,
-  reputation: number
+  reputation: number,
+  nonceCount:number
 ): Promise<boolean> => {
   try {
-    GeneralContractMethod("addStaker", [
+    await GeneralContractMethod("addStaker", [
       address,
-      reputation,
-    ]);
+      reputation
+    ],nonceCount);
     // if (receipt === null) return false;
     return true;
   } catch (e) {
@@ -292,34 +297,13 @@ export const AddStaker = async (
     return false;
   }
 };
-export const AddStaker11 = async (
-  stakeArr: any
-  // address: string,
-  // reputation: number
-): Promise<boolean> => {
-console.log(stakeArr,'filteredStakers')
-  try {
-    for(let i=0;i<stakeArr.length;i++){
 
-    const receipt = await GeneralContractMethod("addStaker", [
-      stakeArr[i].wallet,
-      stakeArr[i].reputation,
-    ]
+
+export const RemoveStaker = async (address: string,nonceCount:number): Promise<boolean> => {
+  try {
+     await GeneralContractMethod("removeStaker", [address],  nonceCount
     );
-    if (receipt === null) return false;
-    return true;
-  }
-  } catch (e) {
-    // console.trace(e);
-    return false;
-  }
-  return true;
-};
-
-export const RemoveStaker = async (address: string): Promise<boolean> => {
-  try {
-    const receipt = await GeneralContractMethod("removeStaker", [address]);
-    if (receipt === null) return false;
+    // if (receipt === null) return false;
     return true;
   } catch (e) {
     // console.trace(e);

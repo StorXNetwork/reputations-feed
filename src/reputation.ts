@@ -96,6 +96,7 @@ console.log("end of first loop")
 
     // stakers.map(({ _id }) => utils.fromXdcAddress(FARMER_ADDRESS[_id]).toLowerCase());
     const existingStaker = await GetAllStaker();
+    let banAcc :any[]=[]
 
     console.log("dbStakerAddress", dbStakerAddress.length);
     console.log("existingStaker", existingStaker.data.length);
@@ -119,33 +120,37 @@ console.log("end of first loop")
        let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
        console.log(`Currennt Nonce ${nonceCount}`)
 
-    for (let staker of filteredStakers) {
+      for (let i=0;i<filteredStakers.length;i++) {
+
       // console.log(staker_address_map,'staker_address_map')
       try {
-        const { address, reputation, _id } = staker;
+        const { address, reputation, _id } = filteredStakers[i];
         const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
-        // const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
+        const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
         const exists = existingStaker.data.includes(wallet)
         global.logger.debug("checking sync for address", wallet, exists)
 
-        // if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
-        //   global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
-        //   const updated = await UpdateAddresReputation(
-        //     wallet as string,
-        //     0
-        //   );
-        //   if (updated === null) {
-        //     global.logger.debug("error in sync stakers for staker", wallet, "while updated");
-        //   };
-        //   continue;
-        // }
+
+        if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
+          global.logger.info("sync: ban", address, wallet,stakedAmount, reputation, " rep. update to 0");
+          banAcc.push({paymentAddress:wallet,reputation:0})
+          // const updated = await UpdateAddresReputation(
+          //   banAcc
+            
+          // );
+          // if (updated === null) {
+          //   global.logger.debug("error in sync stakers for staker", wallet, "while updated");
+          // };
+          // continue;
+        }
         if (!exists) {
           global.logger.info("sync: adding", address, wallet);
-          const added = await AddStaker(wallet as string, reputation);
+          const added = await AddStaker(wallet as string, reputation,nonceCount);
           if (added === null) {
             global.logger.debug("error in sync stakers for staker", wallet, "while adding");
             continue;
           };
+          nonceCount= nonceCount+1
         }
     //   if (!exists) {
     //   stakeArr.push({wallet,reputation,nonceCount})
@@ -195,6 +200,11 @@ console.log("end of first loop")
         // continue;
       }
     }
+    // console.log(banAcc,'banAcc')
+    const updated1 = await UpdateAddresReputation(
+      banAcc
+    );
+    await sleep(10000)
     const updated = await UpdateAddresReputation(
       filteredStakers
     );
@@ -208,13 +218,15 @@ console.log("end of first loop")
     //   }
     // }
 
-    // for (let staker of existingStaker.data) {
-    //   if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
-    //     global.logger.info("sync: removing", staker);
-    //     const removed = await RemoveStaker(staker);
-    //     if (removed === null) return false;
-    //   }
-    // }
+    for (let staker of existingStaker.data) {
+      let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+
+      if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
+        global.logger.info("sync: removing", staker);
+        const removed = await RemoveStaker(staker,nonceCount);
+        if (removed === null) return false;
+      }
+    }
 
     return true;
   } catch (e) {
