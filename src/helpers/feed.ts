@@ -281,11 +281,11 @@ export const AddStaker = async (
   reputation: number
 ): Promise<boolean> => {
   try {
-    const receipt = await GeneralContractMethod("addStaker", [
+    GeneralContractMethod("addStaker", [
       address,
       reputation,
     ]);
-    if (receipt === null) return false;
+    // if (receipt === null) return false;
     return true;
   } catch (e) {
     // console.trace(e);
