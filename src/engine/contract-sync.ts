@@ -111,11 +111,11 @@ async function watch() {
 const ContractDataMethod = ['token', 'iRepF', 'reputationThreshold', 'hostingCompensation', 'totalStaked', 'minStakeAmount', 'maxStakeAmount', 'coolOff', 'interest', 'totalRedeemed', 'redeemInterval', 'maxEarningsCap', 'interestPrecision']
 
 async function updateContractData() {
-  try {
-    const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(process.env.HTTP_RPC as string));
-    const stakingContract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS)
-    const reputationContract = new xdc3.eth.Contract(ReputationFeedABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS)
+  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc as string));
+  const stakingContract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS)
+  const reputationContract = new xdc3.eth.Contract(ReputationFeedABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS)
 
+  try {
     const data = await Promise.all([...ContractDataMethod.map(x => stakingContract.methods[x].apply().call())]);
 
     let modelAttr: any = {};
@@ -129,32 +129,54 @@ async function updateContractData() {
     }
 console.log(` Start stakeholderRep 1`)
     let counterRep = 0
-    const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
-      counterRep = counterRep + 1;
-      if(counterRep >= 500){
-        sleep(5000);
-        counterRep = 0
-      }
-      return reputationContract.methods.reputations(fromXdcAddress(x)).call()
-    }))
+    // const stakeholderRep = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
+    //   counterRep = counterRep + 1;
+    //   if(counterRep >= 500){
+    //     sleep(5000);
+    //     counterRep = 0
+    //   }
+    //   return reputationContract.methods.reputations(fromXdcAddress(x)).call()
+    // }))
+
+    let stakeholderRepArr:any = []
+    for (let i = 0; i < modelAttr.stakeHolders.length; i++) {
+      let res = await reputationContract.methods.reputations(fromXdcAddress(modelAttr.stakeHolders[i])).call();
+      stakeholderRepArr.push(res);
+    }
     console.log(` End stakeholderRep 1`)
-console.log(`Start stakeholderStake 2`)
-    let counterStake = 0
-    const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
-      counterStake = counterStake + 1;
-      if(counterStake >= 500){
-        sleep(5000);
-        counterStake = 0
-      }
-      return stakingContract.methods.stakes(fromXdcAddress(x)).call()
-    }))
+console.log(`Start stakeholderStake 2,`,modelAttr.stakeHolders.length)
+// modelAttr.stakeHolders.splice(-2)
+// console.log(`Start stakeholderStake 3,`,modelAttr.stakeHolders.length)
+
+let stakeHolderStakeArr:any = [] 
+    for (let i = 0; i < modelAttr.stakeHolders.length; i++) {
+      let res = await stakingContract.methods.stakes(fromXdcAddress(modelAttr.stakeHolders[i])).call();
+      stakeHolderStakeArr.push(res);
+    }
+    // let counterStake = 0
+    // const stakeholderStake = await Promise.all(modelAttr.stakeHolders.map((x: string) => {
+    //   counterStake = counterStake + 1;
+    //   // console.log('here is am',counterStake)
+
+    //   if(counterStake >= 200){
+    //     sleep(2000);
+    //     counterStake = 0
+    //     // console.log('here2222 is am',counterStake)
+
+    //   }
+    //   // console.log('111 is am',counterStake)
+
+    //   return stakingContract.methods.stakes(fromXdcAddress(x)).call()
+    // }))
+
+
     console.log(`End stakeholderStake 2`)
 
     // const stakeHolderData = await Promise.all(modelAttr.stakeHolders.map((x: string) => Mirror.findOne({ 'contract.payment_destination': { $regex: new RegExp(toXdcAddress(x) as string, "i") } })))
     modelAttr.stakeHolders = modelAttr.stakeHolders.reduce((acc: object, staker: string, i: number): object => {
       // Object.assign(acc, { [staker]: { reputation: stakeholderRep[i], stake: stakeholderStake[i], data: stakeHolderData[i] } })
       staker = (staker).toLowerCase()
-      let stakeHolderData = { reputation: stakeholderRep[i], stake: stakeholderStake[i] };
+      let stakeHolderData = { reputation: stakeholderRepArr[i], stake: stakeHolderStakeArr[i] };
       if (exists?.stakeHolders[staker]) {
         stakeHolderData = { ...exists?.stakeHolders[staker], ...stakeHolderData }
       }
