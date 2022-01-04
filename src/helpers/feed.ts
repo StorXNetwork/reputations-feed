@@ -233,7 +233,7 @@ if (filteredStakers[i].paymentAddress){
   let currentReputation = await contract.methods.getReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress)).call()
   global.logger.debug("reputation change for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "-> current:", currentReputation, "updated:", filteredStakers[i].reputation, "are equal:", currentReputation == filteredStakers[i].reputation);
 
-  if (currentReputation == filteredStakers[i].reputation && filteredStakers[i].reputation<1) {
+  if ((currentReputation == filteredStakers[i].reputation && filteredStakers[i].reputation<1)) {
     global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); continue;
   }
   console.log(`Sr :- ${i}/${filteredStakers.length} Current Add :- ${filteredStakers[i].paymentAddress} Rep :- ${filteredStakers[i].reputation} `)
