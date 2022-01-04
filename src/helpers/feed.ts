@@ -232,8 +232,7 @@ if (filteredStakers[i].paymentAddress){
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   let currentReputation = await contract.methods.getReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress)).call()
   global.logger.debug("reputation change for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "-> current:", currentReputation, "updated:", filteredStakers[i].reputation, "are equal:", currentReputation == filteredStakers[i].reputation);
-
-  if ((currentReputation == filteredStakers[i].reputation && filteredStakers[i].reputation<1)) {
+  if (currentReputation == filteredStakers[i].reputation) {
     global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); continue;
   }
   console.log(`Sr :- ${i}/${filteredStakers.length} Current Add :- ${filteredStakers[i].paymentAddress} Rep :- ${filteredStakers[i].reputation} `)

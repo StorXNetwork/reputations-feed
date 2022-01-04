@@ -134,7 +134,8 @@ console.log("end of first loop")
           // console.log(reputation,'reputation')
           // console.log(stakedAmount,'stakedAmount')
           global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
-          banAcc.push({paymentAddress:wallet,reputation:0})
+          filteredStakers[i].reputation =0
+          // banAcc.push({paymentAddress:wallet,reputation:0})
           // const updated = await UpdateAddresReputation(
           //   banAcc
             
@@ -202,10 +203,10 @@ console.log("end of first loop")
       }
     }
     // console.log(banAcc,'banAcc')
-    const updated1 = await UpdateAddresReputation(
-      banAcc
-    );
-    await sleep(10000)
+    // const updated1 = await UpdateAddresReputation(
+    //   banAcc
+    // );
+    // await sleep(10000)
     const updated = await UpdateAddresReputation(
       filteredStakers
     );
