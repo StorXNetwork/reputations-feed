@@ -85,7 +85,7 @@ export const GetStats = async (req: express.Request, res: express.Response): Pro
     const contract = (await ContractData.findOne({}));
     const stakeholder_count = Object.keys(contract?.stakeHolders as any).length;
     const staked_amount = contract?.totalStaked;
-    const user_count = (await User.count({}));
+    const user_count = (await User.countDocuments({}));
 
     res.json({
         status: 200, data: {
