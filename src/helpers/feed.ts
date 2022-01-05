@@ -37,7 +37,7 @@ export const GeneralContractMethodView = (
   params: (string | number)[] = []
 ): Promise<any> => {
   return new Promise(async (resolve, reject) => {
-    const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+    const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
     const contract = new xdc3.eth.Contract(
       ABI as AbiItem[],
       REPUTATION_CONTRACT_ADDRESS
