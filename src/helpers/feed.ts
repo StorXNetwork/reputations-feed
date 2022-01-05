@@ -37,12 +37,12 @@ export const GeneralContractMethodView = (
   params: (string | number)[] = []
 ): Promise<any> => {
   return new Promise(async (resolve, reject) => {
+    const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+    const contract = new xdc3.eth.Contract(
+      ABI as AbiItem[],
+      REPUTATION_CONTRACT_ADDRESS
+    );
     try {
-      const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
-      const contract = new xdc3.eth.Contract(
-        ABI as AbiItem[],
-        REPUTATION_CONTRACT_ADDRESS
-      );
       const data = await contract.methods[method](...params).call();
       resolve(data);
     } catch (e) {
@@ -58,14 +58,15 @@ export const GeneralContractMethod = (
   nonceCount:number
 ): Promise<TransactionReceipt> => {
   return new Promise(async (resolve, reject) => {
+    const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+    const contract = new xdc3.eth.Contract(
+      ABI as AbiItem[],
+      REPUTATION_CONTRACT_ADDRESS
+    );
     try {
       console.log("method, params", method, params);
 
-      const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
-      const contract = new xdc3.eth.Contract(
-        ABI as AbiItem[],
-        REPUTATION_CONTRACT_ADDRESS
-      );
+ 
       const data = contract.methods[method](...params).encodeABI();
       const tx: any = {
         data,
@@ -232,6 +233,7 @@ if (filteredStakers[i].paymentAddress){
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   let currentReputation = await contract.methods.getReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress)).call()
   global.logger.debug("reputation change for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "-> current:", currentReputation, "updated:", filteredStakers[i].reputation, "are equal:", currentReputation == filteredStakers[i].reputation);
+  // console.log(currentReputation , filteredStakers[i].reputation,'currentReputation == filteredStakers[i].reputation ' )
   if (currentReputation == filteredStakers[i].reputation) {
     global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); continue;
   }
