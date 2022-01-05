@@ -108,7 +108,7 @@ console.log("end of first loop")
     if (existingStaker.status === false) return false;
     existingStaker.data = existingStaker.data.map((x) => x.toLowerCase());
 
-    let stakeHolders = {}
+    let stakeHolders:any = {}
     let stakeArr: any[] = [];
     if (contractData) {
       stakeHolders = (contractData).stakeHolders as any;
@@ -133,7 +133,7 @@ console.log("end of first loop")
         if (parseFloat(stakedAmount) < 3000 && reputation < 2000) {
           // console.log(reputation,'reputation')
           // console.log(stakedAmount,'stakedAmount')
-          global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
+          // global.logger.info("sync: ban", address, wallet, reputation, " rep. update to 0");
           filteredStakers[i].reputation =0
           // banAcc.push({paymentAddress:wallet,reputation:0})
           // const updated = await UpdateAddresReputation(
