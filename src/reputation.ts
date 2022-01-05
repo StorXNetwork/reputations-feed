@@ -146,6 +146,7 @@ console.log("end of first loop")
           // continue;
         }
         if (!exists) {
+          await sleep(50000)
           global.logger.info("sync: adding", address, wallet);
           const added = await AddStaker(wallet as string, reputation,nonceCount);
           if (added === null) {
@@ -206,7 +207,7 @@ console.log("end of first loop")
     // const updated1 = await UpdateAddresReputation(
     //   banAcc
     // );
-    // await sleep(10000)
+    await sleep(50000)
     const updated = await UpdateAddresReputation(
       filteredStakers
     );
@@ -219,6 +220,7 @@ console.log("end of first loop")
     //     await AddStaker(staker as string, DEFAULT_REP);
     //   }
     // }
+    await sleep(50000)
 
     for (let staker of existingStaker.data) {
       let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
