@@ -247,7 +247,7 @@ function sleep(milliseconds: any) {
   do {
     currentDate = Date.now();
   } while (currentDate - date < milliseconds);
-  console.log("Waited 2 Seconds")
+  console.log(`Waited ${milliseconds/1000} Seconds`)
 }
 
 /**
