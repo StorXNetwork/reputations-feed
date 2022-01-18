@@ -58,7 +58,7 @@ export const GeneralContractMethod = (
   nonceCount:number
 ): Promise<TransactionReceipt> => {
   return new Promise(async (resolve, reject) => {
-    const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+    const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
     const contract = new xdc3.eth.Contract(
       ABI as AbiItem[],
       REPUTATION_CONTRACT_ADDRESS
@@ -110,7 +110,7 @@ export const GeneralContractMethod11 = async (
     try {
       console.log("method, params", method, params);
 
-      const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+      const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
       const contract = new xdc3.eth.Contract(
         ABI as AbiItem[],
         REPUTATION_CONTRACT_ADDRESS
@@ -169,7 +169,7 @@ export const GeneralContractMethod11 = async (
 export const GetAddressReputation = async (
   address: string
 ): Promise<number> => {
-  const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   return await contract.methods.getReputation(address).call();
 };
@@ -217,7 +217,7 @@ export const UpdateAddresReputation = async (
 ):Promise<boolean> =>  {
   let counterArr : any = [];
   let signTxH : any = [];
-  const xdc3 = new Xdc3(new Xdc3.providers.WebsocketProvider(NETWORK.ws));
+  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
   // const account = xdc3.eth.accounts.privateKeyToAccount(ACCOUNT.privateKey)
   // let coinbase = utils.fromXdcAddress(ACCOUNT.address)
   // console.log(coinbase,ACCOUNT.address,account,'accountaccountaccountaccount')
