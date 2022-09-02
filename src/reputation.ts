@@ -126,7 +126,7 @@ console.log("end of first loop")
       const { address, reputation, _id } = filteredStakers[i];
       const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
       // console.log(stakeHolders[wallet],wallet)
-      // const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
+      const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
       try {
 
         const exists = existingStaker.data.includes(wallet)
@@ -148,6 +148,9 @@ console.log("end of first loop")
         //   // };
         //   // continue;
         // }
+	if (parseFloat(stakedAmount) === 1000 && stakeHolders[wallet].reputation > 0 && stakeHolders[wallet].reputation < 350) {
+          filteredStakers[i].reputation =0
+        }
         if (!exists) {
 
           await sleep(5000)
