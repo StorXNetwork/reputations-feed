@@ -56,7 +56,7 @@ export const GeneralContractMethod = (
   method: string,
   params: (string | number)[] = [],
   nonceCount:number
-): Promise<TransactionReceipt> => {
+): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
     const contract = new xdc3.eth.Contract(
@@ -82,22 +82,25 @@ export const GeneralContractMethod = (
       await send(tx)
       resolve(true)
 
-    //   const signed = await xdc3.eth.accounts.signTransaction(
-    //     tx,
-    //     ACCOUNT.privateKey
-    //   );
+      //   const signed = await xdc3.eth.accounts.signTransaction(
+      //     tx,
+      //     ACCOUNT.privateKey
+      //   );
 
-    //   xdc3.eth
-    //     .sendSignedTransaction(signed.rawTransaction as string)
-    //     .once("receipt", (receipt) => resolve(receipt))
-    //     .catch((e) => {
-    //       // console.trace(e);
-    //       reject(e);
-    //     });
-    // } catch (e) {
-    //   // console.trace(e);
-    //   reject(e);
-    // }
+      //   xdc3.eth
+      //     .sendSignedTransaction(signed.rawTransaction as string)
+      //     .once("receipt", (receipt) => resolve(receipt))
+      //     .catch((e) => {
+      //       // console.trace(e);
+      //       reject(e);
+      //     });
+      // } catch (e) {
+      //   // console.trace(e);
+      //   reject(e);
+      // }
+    } catch (err) {
+      console.log(err);
+    };
   });
 };
 
@@ -188,7 +191,6 @@ export const send = function (obj:any)  {
           from: obj.from,
           to: obj.to,
           value: obj.value,
-          gasLimit: obj.gasLimit,
           gasPrice: obj.gasPrice,
       }, function (err, hash) {
           if (err) {
@@ -227,57 +229,57 @@ export const UpdateAddresReputation = async (
 
   console.log(filteredStakers.length,'filteredStakers')
   for(let i=0;i<filteredStakers.length;i++){
-if (filteredStakers[i].paymentAddress){
-  // const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  if (filteredStakers[i].paymentAddress){
+    // const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
 
-  const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
-  let currentReputation = await contract.methods.getReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress)).call()
-  global.logger.debug("reputation change for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "-> current:", currentReputation, "updated:", filteredStakers[i].reputation, "are equal:", currentReputation == filteredStakers[i].reputation);
-  // console.log(currentReputation , filteredStakers[i].reputation,'currentReputation == filteredStakers[i].reputation ' )
-  if (currentReputation == filteredStakers[i].reputation) {
-    global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); continue;
+    const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
+    let currentReputation = await contract.methods.getReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress)).call()
+    global.logger.debug("reputation change for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "-> current:", currentReputation, "updated:", filteredStakers[i].reputation, "are equal:", currentReputation == filteredStakers[i].reputation);
+    // console.log(currentReputation , filteredStakers[i].reputation,'currentReputation == filteredStakers[i].reputation ' )
+    if (currentReputation == filteredStakers[i].reputation) {
+      global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); continue;
+    }
+    console.log(`Sr :- ${i}/${filteredStakers.length} Current Add :- ${filteredStakers[i].paymentAddress} Rep :- ${filteredStakers[i].reputation} `)
+    let data = contract.methods.setReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress), filteredStakers[i].reputation).encodeABI();
+
+    let tx: any = {
+      data,
+      to: REPUTATION_CONTRACT_ADDRESS,
+      from: ACCOUNT.address,
+    };
+
+    // sleep(3000);
+    let gasLimit = await xdc3.eth.estimateGas(tx);
+    tx["gasLimit"] = toHex(gasLimit);
+    tx["nonce"] = "0x" + nonceCount.toString(16);;
+    await send(tx)
+    nonceCount =nonceCount+1
+    // counterArr.push(tx);
+    // console.log(counterArr.length,'counterArr')
+
+    // if(counterArr.length % 10 === 0){
+      // counterArr.forEach(async (item: any) => {
+              //   const signed = await xdc3.eth.accounts.signTransaction(
+              //     tx,
+              //     ACCOUNT.privateKey
+              //   );
+              //   signTxH.push(signed)
+              //     // sleep(2000);
+
+              //   let recipet = await xdc3.eth.sendSignedTransaction(signTxH[i].rawTransaction,(error, txHash)  =>{
+              //     if (error) throw error;
+              //     console.log(`txHash :- ${txHash}  `)
+
+              // });
+      // nonceCount = nonceCount+1
+        // xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
+      // })
+      // counterArr = []
+    // }
+    }else{
+      console.log('print value', filteredStakers[i])
+    }
   }
-  console.log(`Sr :- ${i}/${filteredStakers.length} Current Add :- ${filteredStakers[i].paymentAddress} Rep :- ${filteredStakers[i].reputation} `)
-  let data = contract.methods.setReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress), filteredStakers[i].reputation).encodeABI();
-
-  let tx: any = {
-    data,
-    to: REPUTATION_CONTRACT_ADDRESS,
-    from: ACCOUNT.address,
-  };
-
-  // sleep(3000);
-  let gasLimit = await xdc3.eth.estimateGas(tx);
-  tx["gasLimit"] = toHex(gasLimit);
-  tx["nonce"] = "0x" + nonceCount.toString(16);;
-  await send(tx)
-  nonceCount =nonceCount+1
-  // counterArr.push(tx);
-  // console.log(counterArr.length,'counterArr')
-
-  // if(counterArr.length % 10 === 0){
-    // counterArr.forEach(async (item: any) => {
-            //   const signed = await xdc3.eth.accounts.signTransaction(
-            //     tx,
-            //     ACCOUNT.privateKey
-            //   );
-            //   signTxH.push(signed)
-            //     // sleep(2000);
-
-            //   let recipet = await xdc3.eth.sendSignedTransaction(signTxH[i].rawTransaction,(error, txHash)  =>{
-            //     if (error) throw error;
-            //     console.log(`txHash :- ${txHash}  `)
-
-            // });
-    // nonceCount = nonceCount+1
-      // xdc3.eth.sendSignedTransaction(signed.rawTransaction as string);
-    // })
-    // counterArr = []
-  // }
-}else{
-  console.log('print value', filteredStakers[i])
-}
-}
   return true;
 };
 
