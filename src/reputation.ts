@@ -126,7 +126,6 @@ console.log("end of first loop")
       const { address, reputation, _id } = filteredStakers[i];
       const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
       // console.log(stakeHolders[wallet],wallet)
-      const stakedAmount = utils.fromWei(stakeHolders[wallet].stake.stakedAmount as string);
       try {
 
         const exists = existingStaker.data.includes(wallet)
@@ -148,8 +147,12 @@ console.log("end of first loop")
         //   // };
         //   // continue;
         // }
-	if (parseFloat(stakedAmount) === 1000 && stakeHolders[wallet].reputation > 0 && stakeHolders[wallet].reputation < 350) {
-          filteredStakers[i].reputation =0
+        if (contractData && contractData.stakeHolders[wallet]) {
+          const stakedAmount = utils.fromWei(contractData.stakeHolders[wallet].stake.stakedAmount as string);
+          if (parseFloat(stakedAmount) === 1000 && contractData.stakeHolders[wallet].reputation > 0 && contractData.stakeHolders[wallet].reputation < 350) {
+            console.log(contractData.stakeHolders[wallet], 'working fine');
+            filteredStakers[i].reputation =0
+          }
         }
         if (!exists) {
 
@@ -229,19 +232,19 @@ console.log("end of first loop")
     //   }
     // }
 
-    for (let staker of existingStaker.data) {
-      let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+    // for (let staker of existingStaker.data) {
+    //   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
 
-      if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
-        console.log(`Started RemoveStaker`)
+    //   if (dbStakerAddress.includes(fromXdcAddress(staker).toLowerCase()) === false) {
+    //     console.log(`Started RemoveStaker`)
 
-        global.logger.info("sync: removing", staker);
-        await sleep(5000)
+    //     global.logger.info("sync: removing", staker);
+    //     await sleep(5000)
 
-        const removed = await RemoveStaker(staker,nonceCount);
-        if (removed === null) return false;
-      }
-    }
+    //     const removed = await RemoveStaker(staker,nonceCount);
+    //     if (removed === null) return false;
+    //   }
+    // }
 
     return true;
   } catch (e) {

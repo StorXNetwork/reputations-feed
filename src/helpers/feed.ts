@@ -191,6 +191,7 @@ export const send = function (obj:any)  {
           from: obj.from,
           to: obj.to,
           value: obj.value,
+          gasLimit: obj.gasLimit,
           gasPrice: obj.gasPrice,
       }, function (err, hash) {
           if (err) {
