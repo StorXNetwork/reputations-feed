@@ -152,6 +152,9 @@ console.log("end of first loop")
           if (parseFloat(stakedAmount) < 3501 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 400) {
             filteredStakers[i].reputation =0
           }
+          if (parseFloat(stakedAmount) > 3500 && parseFloat(stakedAmount) < 5000 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 30) {
+            filteredStakers[i].reputation =0
+          }
         }
         if (!exists) {
 
