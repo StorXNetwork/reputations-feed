@@ -8,6 +8,9 @@ import { GetRates } from '../helpers/price';
 import { Contact } from '../models/contact';
 import { User } from '../models/user';
 import { BadRequestError } from '../helpers/errors';
+import {
+    Inactivation,
+  } from "../helpers/feed";
 
 
 export const GetStakeHolder = (req: express.Request, res: express.Response): void => {
@@ -16,7 +19,37 @@ export const GetStakeHolder = (req: express.Request, res: express.Response): voi
 
 export const GetContractData = async (req: express.Request, res: express.Response): Promise<void> => {
     const data = await ContractData.findOne({})
-    res.json({ status: 200, data: data })
+    const stakeHolders = Object.keys(data.stakeHolders);
+    let filteredStakeHolders = [];
+    for(let i = 0; i < stakeHolders.length; i++) {
+        let rep = Number(data.stakeHolders[stakeHolders[i]].reputation);
+        let stake = Number(data.stakeHolders[stakeHolders[i]].stake.stakedAmount)/1000000000000000000;
+        if (stake > 3500 && stake < 5000 && rep > 0 && rep < 450) {
+            filteredStakeHolders.push(data.stakeHolders[stakeHolders[i]])
+        }
+    }
+    res.json({ status: 200, data: filteredStakeHolders.length })
+}
+
+export const InactivationTest = async (req: express.Request, res: express.Response): Promise<void> => {
+    const data = await ContractData.findOne({})
+    const stakeHolders = Object.keys(data.stakeHolders);
+    let sortedStakeHolders = [];
+    for(let j = 0; j < stakeHolders.length; j++) {
+        let rep = Number(data.stakeHolders[stakeHolders[j]].reputation);
+        let stake = Number(data.stakeHolders[stakeHolders[j]].stake.stakedAmount)/1000000000000000000;
+        if (rep == 0 && stake > 1000){
+            sortedStakeHolders.push(stakeHolders[j])
+        }
+    }
+    
+    for(let i = 0; i < sortedStakeHolders.length; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 8000));
+        console.log(toXdcAddress(sortedStakeHolders[i]));
+        Inactivation(toXdcAddress(sortedStakeHolders[i]));
+    }
+
+    // Inactivation("xdcb6976601B3c91e05C47A5ecdF86eD1DdbaF6897a");
 }
 
 export const GetUserEvents = async (req: express.Request, res: express.Response): Promise<void> => {
@@ -94,5 +127,14 @@ export const GetStats = async (req: express.Request, res: express.Response): Pro
             user_count
         }
     })
+}
+
+function sleep(milliseconds: any) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+    console.log("Waited 2 Seconds")
 }
 

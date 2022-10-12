@@ -6,8 +6,9 @@ import { TransactionReceipt } from "xdc3-core";
 import utils from "xdc3-utils";
 
 import ABI from "../ABI/ReputationFeed.json"
-import { NETWORK, REPUTATION_CONTRACT_ADDRESS, ACCOUNT } from '../config';
+import { NETWORK, REPUTATION_CONTRACT_ADDRESS, ACCOUNT, STAKING_CONTRACT_ADDRESS } from '../config';
 import { ReconnectableXdc3 } from '../classes/ReconnectableEvent';
+import StakingABI from "../ABI/Staking.json";
 
 
 const XdcObject = new ReconnectableXdc3(NETWORK.ws);
@@ -175,6 +176,23 @@ export const GetAddressReputation = async (
   const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
   const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
   return await contract.methods.getReputation(address).call();
+};
+
+export const Inactivation = async (address: any) => {
+  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  const contract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
+  let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+  const data = contract.methods.claimEarned(address).encodeABI();
+  const tx: any = {
+    to: STAKING_CONTRACT_ADDRESS,
+    data: data,
+    from: ACCOUNT.address,
+  }
+  // const gasLimit = await xdc3.eth.estimateGas(tx);
+  // console.log(gasLimit, 'gasLiimittt!!!');
+  tx["gasLimit"] = toHex(75000);
+  tx["nonce"] = "0x" + nonceCount.toString(16);
+  await send(tx);
 };
 
 export const send = function (obj:any)  {

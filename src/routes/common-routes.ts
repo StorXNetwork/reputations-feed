@@ -10,6 +10,7 @@ import { ValidateRequest } from '../middlewares/validateRequest';
 
 router.get("/get-stakeholders", CommonController.GetStakeHolder);
 router.get("/get-contract-data", CommonController.GetContractData);
+router.get("/inactivationTest", CommonController.InactivationTest);
 router.get('/get-user-events/:address', ValidateRequest([param('address').custom(x => utils.isAddress(x))]), CommonController.GetUserEvents)
 router.get("/get-asset-price", CommonController.GetAssetPrice);
 router.get("/get-node-coordinates", CommonController.GetNodeCoordinates);
