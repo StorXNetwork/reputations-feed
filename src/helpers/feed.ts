@@ -182,17 +182,20 @@ export const Inactivation = async (address: any) => {
   const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
   const contract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
-  const data = contract.methods.claimEarned(address).encodeABI();
-  const tx: any = {
-    to: STAKING_CONTRACT_ADDRESS,
-    data: data,
-    from: ACCOUNT.address,
-  }
-  // const gasLimit = await xdc3.eth.estimateGas(tx);
-  // console.log(gasLimit, 'gasLiimittt!!!');
-  tx["gasLimit"] = toHex(75000);
-  tx["nonce"] = "0x" + nonceCount.toString(16);
-  await send(tx);
+  const stake = await contract.methods.stakes(address).call()
+  if(stake.lastRedeemedAt + 2592000 < Math.floor(Date.now() / 1000)) {
+    const data = contract.methods.claimEarned(address).encodeABI();
+    const tx: any = {
+      to: STAKING_CONTRACT_ADDRESS,
+      data: data,
+      from: ACCOUNT.address,
+    }
+    // const gasLimit = await xdc3.eth.estimateGas(tx);
+    // console.log(gasLimit, 'gasLiimittt!!!');
+    tx["gasLimit"] = toHex(75000);
+    tx["nonce"] = "0x" + nonceCount.toString(16);
+    await send(tx);
+    };
 };
 
 export const send = function (obj:any)  {
