@@ -183,7 +183,7 @@ export const Inactivation = async (address: any) => {
   const contract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
   let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
   const stake = await contract.methods.stakes(address).call()
-  if(stake.lastRedeemedAt + 2592000 < Math.floor(Date.now() / 1000)) {
+  if(Number(stake.lastRedeemedAt) + 2592000 < Math.floor(Date.now() / 1000)) {
     const data = contract.methods.claimEarned(address).encodeABI();
     const tx: any = {
       to: STAKING_CONTRACT_ADDRESS,
