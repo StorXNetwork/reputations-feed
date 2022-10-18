@@ -190,9 +190,9 @@ export const Inactivation = async (address: any) => {
       data: data,
       from: ACCOUNT.address,
     }
-    // const gasLimit = await xdc3.eth.estimateGas(tx);
+    const gasLimit = await xdc3.eth.estimateGas(tx);
     // console.log(gasLimit, 'gasLiimittt!!!');
-    tx["gasLimit"] = toHex(200000);
+    tx["gasLimit"] = toHex(gasLimit);
     tx["nonce"] = "0x" + nonceCount.toString(16);
     await send(tx);
     };
