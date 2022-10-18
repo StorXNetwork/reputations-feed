@@ -192,7 +192,7 @@ export const Inactivation = async (address: any) => {
     }
     // const gasLimit = await xdc3.eth.estimateGas(tx);
     // console.log(gasLimit, 'gasLiimittt!!!');
-    tx["gasLimit"] = toHex(75000);
+    tx["gasLimit"] = toHex(200000);
     tx["nonce"] = "0x" + nonceCount.toString(16);
     await send(tx);
     };
