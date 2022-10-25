@@ -9,6 +9,8 @@ import ABI from "../ABI/ReputationFeed.json"
 import { NETWORK, REPUTATION_CONTRACT_ADDRESS, ACCOUNT, STAKING_CONTRACT_ADDRESS } from '../config';
 import { ReconnectableXdc3 } from '../classes/ReconnectableEvent';
 import StakingABI from "../ABI/Staking.json";
+import { uniqueId } from "lodash";
+import { MintInfo } from "../models/mintInfo";
 
 
 const XdcObject = new ReconnectableXdc3(NETWORK.ws);
@@ -195,7 +197,19 @@ export const Inactivation = async (address: any) => {
     tx["gasLimit"] = toHex(gasLimit);
     tx["nonce"] = "0x" + nonceCount.toString(16);
     await send(tx);
-    };
+    const updatedStake = await contract.methods.stakes(address).call();
+    if(stake.lastRedeemedAt !== updatedStake.lastRedeemedAt){
+      let tenure = updatedStake.lastRedeemedAt - stake.lastRedeemedAt;
+      let earnedStake = ((tenure/86400)*stake.stakedAmount*6)/(100*365);
+      let earnedHost = ((tenure/86400)*9000)/365;
+      let totalEarned = earnedHost + earnedStake;
+      let data: any = {};
+      data.address = address;
+      data.mintAmount = totalEarned;
+      data.date = new Date();
+      new MintInfo(data).save();
+    }
+  };
 };
 
 export const send = function (obj:any)  {
