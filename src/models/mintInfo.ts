@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { connection_storx } from "./connections";
+import { connection_feed } from "./connections";
 
 
 interface MintInfo {
@@ -23,7 +23,7 @@ const MintInfoSchema = new Schema<MintInfo>({
   },
 });
 
-const MintInfo = connection_storx.model<MintInfo>("MintInfo", MintInfoSchema);
+const MintInfo = connection_feed.model<MintInfo>("MintInfo", MintInfoSchema);
 
 
 export { MintInfo }
