@@ -197,18 +197,18 @@ export const Inactivation = async (address: any) => {
     tx["gasLimit"] = toHex(gasLimit);
     tx["nonce"] = "0x" + nonceCount.toString(16);
     await send(tx);
-    const updatedStake = await contract.methods.stakes(address).call();
-    if(stake.lastRedeemedAt !== updatedStake.lastRedeemedAt){
-      let tenure = updatedStake.lastRedeemedAt - stake.lastRedeemedAt;
-      let earnedStake = ((tenure/86400)*stake.stakedAmount*6)/(100*365);
-      let earnedHost = ((tenure/86400)*9000)/365;
-      let totalEarned = earnedHost + earnedStake;
-      let data: any = {};
-      data.address = address;
-      data.mintAmount = totalEarned;
-      data.date = new Date();
-      new MintInfo(data).save();
-    }
+    // const updatedStake = await contract.methods.stakes(address).call();
+    // if(stake.lastRedeemedAt !== updatedStake.lastRedeemedAt){
+    let tenure = Math.floor(Date.now() / 1000) - stake.lastRedeemedAt;
+    let earnedStake = ((tenure/86400)*stake.stakedAmount*6)/(100*365);
+    let earnedHost = ((tenure/86400)*9000)/365;
+    let totalEarned = earnedHost + earnedStake;
+    let mintdata: any = {};
+    mintdata.address = address;
+    mintdata.mintAmount = totalEarned;
+    mintdata.date = new Date();
+    new MintInfo(mintdata).save();
+    // }
   };
 };
 
