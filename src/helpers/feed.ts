@@ -200,7 +200,7 @@ export const Inactivation = async (address: any) => {
     // const updatedStake = await contract.methods.stakes(address).call();
     // if(stake.lastRedeemedAt !== updatedStake.lastRedeemedAt){
     let tenure = Math.floor(Date.now() / 1000) - stake.lastRedeemedAt;
-    let earnedStake = ((tenure/86400)*stake.stakedAmount*6)/(100*365);
+    let earnedStake = ((tenure/86400)*stake.stakedAmount*6)/(100*365)/10**18;
     let earnedHost = ((tenure/86400)*9000)/365;
     let totalEarned = earnedHost + earnedStake;
     let mintdata: any = {};
