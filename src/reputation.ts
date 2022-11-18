@@ -149,7 +149,7 @@ console.log("end of first loop")
         // }
         if (contractData && contractData.stakeHolders[wallet]) {
           const stakedAmount = utils.fromWei(contractData.stakeHolders[wallet].stake.stakedAmount as string);
-          if (parseFloat(stakedAmount) < 3501 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 400) {
+          if (parseFloat(stakedAmount) < 3501 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 950) {
             filteredStakers[i].reputation =0
           }
           if (parseFloat(stakedAmount) > 3500 && parseFloat(stakedAmount) < 5000 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 450) {
