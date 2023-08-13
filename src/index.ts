@@ -47,17 +47,19 @@ app.listen(port, () => console.log("listening on port", port))
 app.use(errorHandler);
 import { SyncStakers } from "./reputation";
 import { UpdateContractData } from "./engine/contract-sync";
-import { ClaimEarned } from "./claimEarned";
+import { ClaimEarned, InactivateNodeCron } from "./claimEarned";
 
 
 // setInterval(() => {
 //   run();
 // }, FEED_INTERVAL);
 
+// setInterval(() => {
+//   ClaimEarned();
+// }, CLAIM_INTERVAL);
 setInterval(() => {
-  ClaimEarned();
+  InactivateNodeCron();
 }, CLAIM_INTERVAL);
-
 // const run = async () =>
 //   SyncStakers()
 //     .then((status) => global.logger.info("sync status", status))
@@ -65,5 +67,5 @@ setInterval(() => {
 //     // .then(() => console.log("updated contract config"))
 //     .catch(console.log);
 
-setTimeout(ClaimEarned, 5000);
+// setTimeout(ClaimEarned, 5000);
 // setTimeout(run, 5000)

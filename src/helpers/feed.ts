@@ -180,6 +180,29 @@ export const GetAddressReputation = async (
   return await contract.methods.getReputation(address).call();
 };
 
+export const Inactivate = async (address: any) => {
+  const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
+  const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
+  let data = contract.methods.setReputation(utils.fromXdcAddress(address), 0).encodeABI();
+  let nonceCount = await xdc3.eth.getTransactionCount(ACCOUNT.address,"pending");
+
+  let tx: any = {
+    data,
+    to: REPUTATION_CONTRACT_ADDRESS,
+    from: ACCOUNT.address,
+  };
+  // sleep(3000);
+  // let gasLimit;
+  // try {
+  //   gasLimit = await xdc3.eth.estimateGas(tx);
+  // } catch(e) {
+  //   console.log(e, 'error');
+  // }
+  tx["gasLimit"] = toHex(300000);
+  tx["nonce"] = "0x" + nonceCount.toString(16);;
+  await send(tx)
+}
+
 export const Inactivation = async (address: any) => {
   const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
   const contract = new xdc3.eth.Contract(StakingABI as AbiItem[], STAKING_CONTRACT_ADDRESS);
