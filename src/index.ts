@@ -69,3 +69,4 @@ setInterval(() => {
 
 // setTimeout(ClaimEarned, 5000);
 // setTimeout(run, 5000)
+setTimeout(InactivateNodeCron, 5000);
