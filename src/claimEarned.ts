@@ -48,7 +48,7 @@ import {
     let count = 0;
     let arr = [];
     for(let i = a1.value || 0; i < len; i++){
-      if(count < 10){
+      if(count < 20){
         if(!rows[i].get('Staking Amount')){
             arr.push(rows[i].get('Address'));
             count++;
