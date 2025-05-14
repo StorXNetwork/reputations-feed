@@ -94,7 +94,7 @@ async function watch() {
 
       await eventModel.save();
       console.log("added new event");
-      await updateContractData();
+      // await updateContractData();
       await EventHandler(event)
     }
 
