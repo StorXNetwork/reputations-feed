@@ -41,23 +41,22 @@ app.all('*', async (req, res) => {
   throw new NotFoundError();
 });
 
+app.use(errorHandler);
+
 app.listen(port, () => console.log("listening on port", port))
 
-app.use(errorHandler);
 import { SyncStakers } from "./reputation";
 import { UpdateContractData } from "./engine/contract-sync";
-
-
-setInterval(() => {
-  run();
-}, FEED_INTERVAL);
 
 const run = async () =>
   SyncStakers()
     .then((status) => global.logger.info("sync status", status))
-    .finally(UpdateContractData)
+    // .finally(UpdateContractData)
     // .then(() => console.log("updated contract config"))
-    .catch(console.log);
+    .catch((err) => console.error("SyncStakers error:", err));
 
+setInterval(() => {
+  run();
+}, FEED_INTERVAL);
 
 setTimeout(run, 5000)
