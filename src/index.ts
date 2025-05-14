@@ -53,7 +53,7 @@ const run = async () =>
     .then((status) => global.logger.info("sync status", status))
     // .finally(UpdateContractData)
     // .then(() => console.log("updated contract config"))
-    .catch((err) => console.error("SyncStakers error:", err));
+    .catch((err) => global.logger.error("SyncStakers error:", err));
 
 setInterval(() => {
   run();

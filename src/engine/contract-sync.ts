@@ -193,7 +193,7 @@ let stakeHolderStakeArr:any = []
     console.log("contract config updated");
   }
   catch (e) {
-    global.logger.error(e);
+    global.logger.error('updateContractData_error',e);
     setTimeout(updateContractData, 5000);
   }
 }
