@@ -194,7 +194,7 @@ let stakeHolderStakeArr:any = []
   }
   catch (e) {
     global.logger.error('updateContractData_error',e);
-    setTimeout(updateContractData, 5000);
+    // setTimeout(updateContractData, 5000);
   }
 }
 
