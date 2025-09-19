@@ -1,13 +1,13 @@
-import express from "express"
-import { config } from "dotenv"
-import 'express-async-errors';
 import { json } from 'body-parser';
-import cors from "cors"
-import path from "path"
+import cors from "cors";
+import { config } from "dotenv";
+import express from "express";
+import 'express-async-errors';
+import path from "path";
 
-import "./helpers/logger"
+import "./helpers/logger";
 
-import commonRoutes from "./routes/common-routes"
+import commonRoutes from "./routes/common-routes";
 // import storxRoutes from "./routes/storx-routes"
 
 import { errorHandler } from './middlewares/error-handler';
@@ -20,7 +20,7 @@ import { NotFoundError } from './helpers/errors';
 config();
 
 
-import "./engine/contract-sync"
+import "./engine/contract-sync";
 
 
 const app: express.Application = express();
@@ -46,7 +46,6 @@ app.use(errorHandler);
 app.listen(port, () => console.log("listening on port", port))
 
 import { SyncStakers } from "./reputation";
-import { UpdateContractData } from "./engine/contract-sync";
 
 const run = async () =>
   SyncStakers()

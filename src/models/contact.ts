@@ -3,15 +3,21 @@ import { connection_storx } from "./connections";
 
 
 interface Contact {
-  _id:string;
+  _id: string;
   address: string;
   reputation: number;
   port: number;
   protocol: string;
   ip: string;
   responseTime: number;
-  paymentAddress:string;
-  lastSeen:Date;
+  paymentAddress: string;
+  lastSeen: Date;
+  wallet?: string;
+  lastTimeout?: Date;
+  timeoutRate?: number;
+  lastContractSent?: number;
+  spaceAvailable?: boolean;
+  userAgent?: string;
 }
 
 const ContactSchema = new Schema<Contact>({
@@ -79,4 +85,4 @@ const ContactSchema = new Schema<Contact>({
 const Contact = connection_storx.model<Contact>("Contact", ContactSchema);
 
 
-export { Contact }
+export { Contact };

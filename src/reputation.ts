@@ -49,7 +49,9 @@ export async function SyncStakers(minRep: number = 0): Promise<boolean> {
     for (let i = 0; i < stakerLength; i++) {
       // const { _id } = stakers[i];
       const contactData = stakers[i];
-
+//if(contactData.address == "83.138.55.232"){
+//console.log(contactData);
+//}
       let wallet;
       if (contactData && contactData.paymentAddress) {
         wallet = fromXdcAddress(contactData.paymentAddress).toLowerCase();
@@ -124,6 +126,9 @@ console.log("end of first loop")
 
       // console.log(staker_address_map,'staker_address_map')
       const { address, reputation, _id } = filteredStakers[i];
+//if(address == "83.138.55.232"){
+//console.log(filteredStakers[i]);
+//}
       const wallet = utils.fromXdcAddress(staker_address_map[_id]).toLowerCase();
       // console.log(stakeHolders[wallet],wallet)
       try {
@@ -149,10 +154,10 @@ console.log("end of first loop")
         // }
         if (contractData && contractData.stakeHolders[wallet]) {
           const stakedAmount = utils.fromWei(contractData.stakeHolders[wallet].stake.stakedAmount as string);
-          if (parseFloat(stakedAmount) < 3501 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 950) {
+          if (parseFloat(stakedAmount) < 3501 && filteredStakers[i].reputation >= 0 && filteredStakers[i].reputation < 950) {
             filteredStakers[i].reputation =0
           }
-          if (parseFloat(stakedAmount) > 3500 && parseFloat(stakedAmount) < 5000 && contractData.stakeHolders[wallet].reputation >= 0 && contractData.stakeHolders[wallet].reputation < 450) {
+          if (parseFloat(stakedAmount) > 3500 && parseFloat(stakedAmount) < 5000 && filteredStakers[i].reputation >= 0 && filteredStakers[i].reputation < 450) {
             filteredStakers[i].reputation =0
           }
         }
@@ -219,11 +224,11 @@ console.log("end of first loop")
     // const updated1 = await UpdateAddresReputation(
     //   banAcc
     // );
-    console.log(`Started UpdateAddresReputation`)
-    await sleep(5000)
-    const updated = await UpdateAddresReputation(
-      filteredStakers
-    );
+    // console.log(`Started UpdateAddresReputation`)
+    // await sleep(5000)
+    // const updated = await UpdateAddresReputation(
+    //   filteredStakers
+    // );
 
     // const DEFAULT_REP = 200;
 

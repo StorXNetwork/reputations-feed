@@ -75,12 +75,13 @@ if (!fs.existsSync(logPath)) {
 const logger = winston.createLogger({
   format: combine(
     timestamp(),
-    printf(({ level, message, timestamp, error, ...rest }) => {
+    printf((info) => {
+      let { level, message, timestamp, error } = info;
       if (_.isObject(message)) message = JSON.stringify(message);
 
       let allRest = "";
-      const splat = Symbol.for("splat")
-      rest = rest[splat as any] || [];
+      const splat = Symbol.for("splat");
+      const rest = (info as any)[splat] || [];
 
       if (rest.length > 0) {
         allRest = rest
@@ -109,9 +110,9 @@ const logger = winston.createLogger({
       });
 
       if (error) {
-        if (error.stack)
-          return `${timestamp} ${level}: ${message} Error:${error.stack} ${allRest}`;
-        else {
+        if (typeof error === "object" && error !== null && "stack" in error) {
+          return `${timestamp} ${level}: ${message} Error:${(error as { stack: string }).stack} ${allRest}`;
+        } else {
           return `${timestamp} ${level}: ${infoStack}: ${message} Error: ${JSON.stringify(
             error
           )} ${allRest}`;

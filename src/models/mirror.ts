@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 import { connection_storx } from './connections';
 
 interface MirrorDoc extends mongoose.Document {
+  name: string,
+  block: number,
+  tx_hash: string,
+  associated_address: string,
+  data: any,
   created: Date,
   shardHash: string,
   contact: string,

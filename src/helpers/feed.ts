@@ -191,16 +191,16 @@ export const send = function (obj:any)  {
           from: obj.from,
           to: obj.to,
           value: obj.value,
-          gasLimit: obj.gasLimit,
+          gas: obj.gasLimit,
           gasPrice: obj.gasPrice,
       }, function (err, hash) {
           if (err) {
               console.error(`Send error ${obj.to} nonce ${obj.nonce}`)
               console.error(String(err))
-              console.error('Sleep 2 seconds and resend until done')
+              console.error('Sleep 5 seconds and resend until done')
               // obj.nonce=obj.nonce+1;
-              return sleep(2000).then(() => {
-                xdc3.eth.getTransactionCount(ACCOUNT.address,"pending").then((nonceCount:any)=>{
+              return sleep(5000).then(() => {
+                xdc3.eth.getTransactionCount(ACCOUNT.address).then((nonceCount:any)=>{
                   console.log(`Nonce Error : Current :- ${obj.nonce} new Nonce :- ${nonceCount}`)
                   obj.nonce=nonceCount;
                   return resolve(send(obj))
@@ -232,11 +232,13 @@ export const UpdateAddresReputation = async (
   for(let i=0;i<filteredStakers.length;i++){
   if (filteredStakers[i].paymentAddress){
     // const xdc3 = new Xdc3(new Xdc3.providers.HttpProvider(NETWORK.rpc));
-
     const contract = new xdc3.eth.Contract(ABI as AbiItem[], REPUTATION_CONTRACT_ADDRESS);
     let currentReputation = await contract.methods.getReputation(utils.fromXdcAddress(filteredStakers[i].paymentAddress)).call()
     global.logger.debug("reputation change for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "-> current:", currentReputation, "updated:", filteredStakers[i].reputation, "are equal:", currentReputation == filteredStakers[i].reputation);
     // console.log(currentReputation , filteredStakers[i].reputation,'currentReputation == filteredStakers[i].reputation ' )
+    if(currentReputation == 0) {
+      continue;
+    }
     if (currentReputation == filteredStakers[i].reputation) {
       global.logger.debug("no change in reputation for", utils.fromXdcAddress(filteredStakers[i].paymentAddress), "skipping"); continue;
     }
@@ -250,9 +252,10 @@ export const UpdateAddresReputation = async (
     };
 
     // sleep(3000);
-    let gasLimit = await xdc3.eth.estimateGas(tx);
+    // let gasLimit = await xdc3.eth.estimateGas(tx);
+    const gasLimit = '40000000';
     tx["gasLimit"] = toHex(gasLimit);
-    tx["nonce"] = "0x" + nonceCount.toString(16);;
+    tx["nonce"] = "0x" + nonceCount.toString(16);
     await send(tx)
     nonceCount =nonceCount+1
     // counterArr.push(tx);

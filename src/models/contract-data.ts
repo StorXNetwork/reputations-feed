@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { connection_feed } from './connections';
 
 export interface StakeHolder {
+  stake: any;
   address: string;
   stakedAmount: string;
   reputation: number;
@@ -40,6 +41,7 @@ interface ContractDataDoc extends mongoose.Document {
   totalRedeemed: number;
   redeemInterval: number;
   maxEarningsCap: number;
+  interestPrecision: number; 
 }
 
 

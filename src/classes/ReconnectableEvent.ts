@@ -81,7 +81,7 @@ export class ReconnectableXdc3 {
       this.xdc3.eth.net.isListening().then(x => {
         if (!x) this.reconnect()
       }).catch(() => {
-        console.log("reconnectable-xdc3", "disconnected");
+        console.log("reconnectable-xdc3", "disconnected", this.ws);
         this.reconnect()
       })
     }, 5000)

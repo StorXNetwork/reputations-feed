@@ -1,13 +1,13 @@
 import express from 'express';
-import geoIp from "geoip-lite"
+import geoIp from "geoip-lite";
 
-import { ContractData, StakeHolder } from '../models/contract-data';
-import { Event } from "../models/events"
 import { fromXdcAddress, toXdcAddress } from 'xdc3-utils';
+import { BadRequestError } from '../helpers/errors';
 import { GetRates } from '../helpers/price';
 import { Contact } from '../models/contact';
+import { ContractData } from '../models/contract-data';
+import { Event } from "../models/events";
 import { User } from '../models/user';
-import { BadRequestError } from '../helpers/errors';
 
 
 export const GetStakeHolder = (req: express.Request, res: express.Response): void => {
@@ -15,7 +15,12 @@ export const GetStakeHolder = (req: express.Request, res: express.Response): voi
 }
 
 export const GetContractData = async (req: express.Request, res: express.Response): Promise<void> => {
-    const data = await ContractData.findOne({})
+    let data;
+    try {
+        data = await ContractData.findOne({})
+    } catch(e) {
+        console.log(e);
+    }
     res.json({ status: 200, data: data })
 }
 
